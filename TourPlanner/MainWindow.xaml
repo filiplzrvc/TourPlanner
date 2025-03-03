@@ -5,7 +5,10 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:TourPlanner"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="Tours" Height="350" Width="525">
+    <Window.DataContext>
+        <local:MainViewModel/>
+    </Window.DataContext>
     <DockPanel>
         <DockPanel DockPanel.Dock="Top" VerticalAlignment="Top" Margin="5,0,5,5">
             <Grid>
@@ -37,6 +40,7 @@
                     <ColumnDefinition Width="170"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
+                
                 <StackPanel Grid.Column="0" Margin="5">
                     <Grid>
                         <TextBlock Background="Aqua" Text="Tours" Padding="3" HorizontalAlignment="Left"></TextBlock>
@@ -47,10 +51,16 @@
                         </StackPanel>
                     </Grid>
                     <Border Background="Aqua" Height="5"></Border>
-                    <TextBlock Text="Wienerwald" Margin="3"></TextBlock>
-                    <TextBlock Text="DopplerhÃ¼tte" Margin="3"></TextBlock>
-                    <TextBlock Text="Figlwarte" Margin="3"></TextBlock>
-                    <TextBlock Text="Dorfrunde" Margin="3"></TextBlock>
+
+                    <ListBox ItemsSource="{Binding Tours}" Margin="10" SelectionChanged="selectedTour">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Name}" Margin="3"/>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+
+
                 </StackPanel>
                 <StackPanel Grid.Column="1" Margin="5">
                     <StackPanel Orientation="Horizontal">
@@ -63,8 +73,12 @@
                     <DataGrid AutoGenerateColumns="True" HeadersVisibility="Column">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="Date" Width="*"/>
-                            <DataGridTextColumn Header="Duration" Width="*"/>
+                            <DataGridTextColumn Header="Name" Width="*"/>
+                            <DataGridTextColumn Header="From" Width="*"/>
+                            <DataGridTextColumn Header="To" Width="*"/>
+                            <DataGridTextColumn Header="EstimatedTime" Width="*"/>
                             <DataGridTextColumn Header="Distance" Width="*"/>
+                            <DataGridTextColumn Header="Description" Width="*"/>
                         </DataGrid.Columns>
                     </DataGrid>
                 </StackPanel>

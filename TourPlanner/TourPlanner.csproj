@@ -8,4 +8,10 @@
     <UseWPF>true</UseWPF>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Folder Include="BL\" />
+    <Folder Include="DAL\" />
+    <Folder Include="UIL\" />
+  </ItemGroup>
+
 </Project>
