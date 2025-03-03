@@ -60,27 +60,34 @@
 
 
                 </StackPanel>
-                <StackPanel Grid.Column="1" Margin="5">
+                <StackPanel  DataContext="{Binding SelectedTour}" Grid.Column="1" Margin="5">
                     <StackPanel Orientation="Horizontal">
                         <Button Content="General" Margin="3,3,3,0"></Button>
                         <Button Content="Route" Margin="3,3,3,0"></Button>
                         <Button Content="Misc" Margin="3,3,3,0" ></Button>
                     </StackPanel>
                     <Border Background="Aqua" Height="5"></Border>
-                    <Image Source="https://www.datocms-assets.com/50871/1716498222-final-2024-ticketoffice-map-95-75x59-2156x1328.jpg" Margin="3" Height="150"/>
-                    <ListView ItemsSource="{Binding SelectedTourAsList}" >
-                        <ListView.View>
-                            <GridView>
-                                <GridViewColumn Header="Date" DisplayMemberBinding="{Binding Path=Date}"/>
-                                <GridViewColumn Header="Name" DisplayMemberBinding="{Binding Path=Name}"/>
-                                <GridViewColumn Header="From" DisplayMemberBinding="{Binding Path=From}"/>
-                                <GridViewColumn Header="To" DisplayMemberBinding="{Binding Path=To}"/>
-                                <GridViewColumn Header="EstimatedTime" DisplayMemberBinding="{Binding Path=EstimatedTime}"/>
-                                <GridViewColumn Header="Distance"  DisplayMemberBinding="{Binding Path=Distance}"/>
-                                <GridViewColumn Header="Description"  DisplayMemberBinding="{Binding Path=Description}"/>
-                            </GridView>
-                        </ListView.View>
-                    </ListView>
+                    <Image Source= "{Binding Image}" Margin="3" Height="150" Width="300"/>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Text="Date:" Grid.Row="0" Grid.Column="0" Margin="5"/>
+                        <TextBlock Text="{Binding Date}" Grid.Row="0" Grid.Column="1" Margin="5"/>
+
+                        <TextBlock Text="Name:" Grid.Row="1" Grid.Column="0" Margin="5"/>
+                        <TextBlock Text="{Binding Name}" Grid.Row="1" Grid.Column="1" Margin="5"/>
+
+                        <TextBlock Text="Description:" Grid.Row="2" Grid.Column="0" Margin="5"/>
+                        <TextBlock Text="{Binding Description}" Grid.Row="2" Grid.Column="1" Margin="5"/>
+                    </Grid>
                 </StackPanel>
             </Grid>
         </DockPanel>
