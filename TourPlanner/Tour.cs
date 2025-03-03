@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace TourPlanner
 {
+    // Transport enum
     public enum TransportType
     {
         Bus, Train, Plane, Walk, Bicycle
