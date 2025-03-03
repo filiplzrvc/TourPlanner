@@ -6,9 +6,7 @@
         xmlns:local="clr-namespace:TourPlanner"
         mc:Ignorable="d"
         Title="Tours" Height="350" Width="525">
-    <Window.DataContext>
-        <local:MainViewModel/>
-    </Window.DataContext>
+
     <DockPanel>
         <DockPanel DockPanel.Dock="Top" VerticalAlignment="Top" Margin="5,0,5,5">
             <Grid>
@@ -52,7 +50,7 @@
                     </Grid>
                     <Border Background="Aqua" Height="5"></Border>
 
-                    <ListBox ItemsSource="{Binding Tours}" Margin="10" SelectionChanged="selectedTour">
+                    <ListBox ItemsSource="{Binding Tours}" Margin="10" SelectionChanged="ListBox_SelectionChanged">
                         <ListBox.ItemTemplate>
                             <DataTemplate>
                                 <TextBlock Text="{Binding Name}" Margin="3"/>
@@ -70,17 +68,19 @@
                     </StackPanel>
                     <Border Background="Aqua" Height="5"></Border>
                     <Image Source="https://www.datocms-assets.com/50871/1716498222-final-2024-ticketoffice-map-95-75x59-2156x1328.jpg" Margin="3" Height="150"/>
-                    <DataGrid AutoGenerateColumns="True" HeadersVisibility="Column">
-                        <DataGrid.Columns>
-                            <DataGridTextColumn Header="Date" Width="*"/>
-                            <DataGridTextColumn Header="Name" Width="*"/>
-                            <DataGridTextColumn Header="From" Width="*"/>
-                            <DataGridTextColumn Header="To" Width="*"/>
-                            <DataGridTextColumn Header="EstimatedTime" Width="*"/>
-                            <DataGridTextColumn Header="Distance" Width="*"/>
-                            <DataGridTextColumn Header="Description" Width="*"/>
-                        </DataGrid.Columns>
-                    </DataGrid>
+                    <ListView ItemsSource="{Binding SelectedTourAsList}" >
+                        <ListView.View>
+                            <GridView>
+                                <GridViewColumn Header="Date" DisplayMemberBinding="{Binding Path=Date}"/>
+                                <GridViewColumn Header="Name" DisplayMemberBinding="{Binding Path=Name}"/>
+                                <GridViewColumn Header="From" DisplayMemberBinding="{Binding Path=From}"/>
+                                <GridViewColumn Header="To" DisplayMemberBinding="{Binding Path=To}"/>
+                                <GridViewColumn Header="EstimatedTime" DisplayMemberBinding="{Binding Path=EstimatedTime}"/>
+                                <GridViewColumn Header="Distance"  DisplayMemberBinding="{Binding Path=Distance}"/>
+                                <GridViewColumn Header="Description"  DisplayMemberBinding="{Binding Path=Description}"/>
+                            </GridView>
+                        </ListView.View>
+                    </ListView>
                 </StackPanel>
             </Grid>
         </DockPanel>
