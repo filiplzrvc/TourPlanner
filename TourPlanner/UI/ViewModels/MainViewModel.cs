@@ -7,6 +7,7 @@ using TourPlanner.Utilities;
 using TourPlanner.UI.Views;
 using System.Windows;
 using System.Windows.Media;
+using System.IO;
 
 namespace TourPlanner.UI.ViewModels
 {
@@ -69,7 +70,6 @@ namespace TourPlanner.UI.ViewModels
                 }
             }
         }
-
         public ICommand OpenAddTourWindowCommand => new RelayCommand(_ =>
         {
             var window = new AddTourWindow
@@ -156,5 +156,7 @@ namespace TourPlanner.UI.ViewModels
 
         public event PropertyChangedEventHandler? PropertyChanged;
         private void OnPropertyChanged(string propertyName) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+
+
     }
 }

@@ -27,7 +27,7 @@ namespace TourPlanner
         private double distance;
         private double estimatedTime;
         private DateTime date = DateTime.Now;
-        private string image = "default_image.jpg";
+        private string image = "../../Images/TestRoute.png";
 
         public string Name { get => name; set => SetProperty(ref name, value); }
         public string Description { get => description; set => SetProperty(ref description, value); }
@@ -37,7 +37,7 @@ namespace TourPlanner
         public double Distance { get => distance; set => SetProperty(ref distance, value); }
         public double EstimatedTime { get => estimatedTime; set => SetProperty(ref estimatedTime, value); }
         public DateTime Date { get => date; set => SetProperty(ref date, value); }
-        public string Image { get => image; set => SetProperty(ref image, string.IsNullOrEmpty(value) ? "Images/TestRoute.png" : value); }
+        public string Image { get => image; set => SetProperty(ref image, string.IsNullOrEmpty(value) ? "../../Images/TestRoute.png" : value); }
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
