@@ -68,7 +68,7 @@
                             </DataTemplate>
                         </ListBox.ItemTemplate>
                     </ListBox>
-                    <TextBlock Text="Keine Touren verfügbar" FontStyle="Italic" Foreground="Gray" HorizontalAlignment="Center">
+                    <TextBlock Text="No tours available" FontStyle="Italic" Foreground="Gray" HorizontalAlignment="Center">
                         <TextBlock.Style>
                             <Style TargetType="TextBlock">
                                 <Setter Property="Visibility" Value="Collapsed"/>
