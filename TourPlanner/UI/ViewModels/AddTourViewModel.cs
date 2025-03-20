@@ -67,9 +67,17 @@ namespace TourPlanner.UI.ViewModels
             tours.Add(newTour);
 
             MessageBox.Show("Tour added successfully!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
-            Application.Current.Windows[1]?.Close();
+            CloseWindow();
         }
 
-        
+        protected virtual void CloseWindow()
+        {
+            if (Application.Current != null && Application.Current.Windows.Count > 1)
+            {
+                Application.Current.Windows[1]?.Close();
+            }
+        }
+
+
     }
 }

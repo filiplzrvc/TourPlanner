@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
-        xmlns:local="clr-namespace:TourPlanner"
+        xmlns:local="clr-namespace:TourPlanner.UI.Views.Components"
         mc:Ignorable="d"
         Title="Tours" Height="600" Width="700" Background="#F5F5F5">
 
@@ -39,171 +39,12 @@
 
             <!-- Left Panel: Tours List -->
             <ScrollViewer Grid.Column="0" Grid.Row="1" VerticalScrollBarVisibility="Auto">
-                <StackPanel Background="#E0F7FA">
-                    <Grid>
-                        <TextBlock Text="Tours" FontWeight="Bold" FontSize="14"/>
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-
-                            <Button Command="{Binding OpenAddTourWindowCommand}" Padding="3" Margin="3" Background="#4CAF50" Foreground="White" BorderThickness="0" Cursor="Hand">
-                                <StackPanel Orientation="Horizontal">
-                                    <md:PackIcon Kind="PlusBox" Width="13" Height="13" Margin="2"/>
-                                </StackPanel>
-                            </Button>
-                            <Button Command="{Binding DeleteTourCommand}" Padding="3" Margin="3" Background="#F44336" Foreground="White" BorderThickness="0" Cursor="Hand">
-                                <StackPanel Orientation="Horizontal">
-                                    <md:PackIcon Kind="Delete" Width="13" Height="13" Margin="2"/>
-                                </StackPanel>
-                            </Button>
-                            <Button Command="{Binding OpenEditTourWindowCommand}" Padding="3" Margin="3" Background="#CC5500" Foreground="white" BorderThickness="0">
-                                <StackPanel Orientation="Horizontal">
-                                    <md:PackIcon Kind="Edit" Width="13" Height="13" Margin="2"/>
-                                </StackPanel>
-                            </Button>
-                        </StackPanel>
-                    </Grid>
-                    <ListBox ItemsSource="{Binding Tours}" SelectedItem="{Binding SelectedTour, Mode=TwoWay}" Margin="10" Height="Auto" MinHeight="100">
-                        <ListBox.ItemTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding Name}" Margin="3"/>
-                            </DataTemplate>
-                        </ListBox.ItemTemplate>
-                    </ListBox>
-                    <TextBlock Text="No tours available" FontStyle="Italic" Foreground="Gray" HorizontalAlignment="Center">
-                        <TextBlock.Style>
-                            <Style TargetType="TextBlock">
-                                <Setter Property="Visibility" Value="Collapsed"/>
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding Tours.Count}" Value="0">
-                                        <Setter Property="Visibility" Value="Visible"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </TextBlock.Style>
-                    </TextBlock>
-                </StackPanel>
+                <local:TourListControl Grid.Column="0" Grid.Row="1"/>
             </ScrollViewer>
 
             <!-- Right Panel: Tour Details -->
             <ScrollViewer Grid.Column="1" Grid.Row="1" VerticalScrollBarVisibility="Auto">
-                <StackPanel Margin="10">
-                    <StackPanel Orientation="Horizontal">
-                        <Button Content="General"
-                          Margin="5"
-                          Padding="10,5"
-                          Background="#1976D2"
-                          Foreground="White"
-                          BorderThickness="0"
-                          Cursor="Hand"
-
-                        />
-                        <Button Content="Route"
-                          Margin="5"
-                          Padding="10,5"
-                          Background="#1976D2"
-                          Foreground="White"
-                          BorderThickness="0"
-                          Cursor="Hand"
-
-                        />
-                        <Button Content="Misc"
-                          Margin="5"
-                          Padding="10,5"
-                          Background="#1976D2"
-                          Foreground="White"
-                          BorderThickness="0"
-                          Cursor="Hand"
-
-                        />
-                    </StackPanel>
-                    <Border Background="#E3E3E3" Height="5" Margin="5,10"/>
-
-                    <Image Source="../../Images/TestRoute.png" Margin="3" Height="150" Width="Auto" HorizontalAlignment="Stretch"/>
-
-                    <StackPanel DataContext="{Binding SelectedTour}" Margin="10">
-                        <Grid Margin="5">
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-
-                            <!-- Spalten-Header -->
-                            <TextBlock Text="Date" FontWeight="Bold" Grid.Row="0" Grid.Column="0" Margin="6" TextAlignment="Center"/>
-                            <TextBlock Text="Description" FontWeight="Bold" Grid.Row="0" Grid.Column="1" Margin="6" TextAlignment="Center"/>
-                            <TextBlock Text="From" FontWeight="Bold" Grid.Row="0" Grid.Column="2" Margin="6" TextAlignment="Center"/>
-                            <TextBlock Text="To" FontWeight="Bold" Grid.Row="0" Grid.Column="3" Margin="6" TextAlignment="Center"/>
-                            <TextBlock Text="Transport Type" FontWeight="Bold" Grid.Row="0" Grid.Column="4" Margin="6" TextAlignment="Center"/>
-
-                            <!-- Spalten-Werte -->
-                            <TextBlock Text="{Binding Date}" Grid.Row="1" Grid.Column="0" Margin="6" TextAlignment="Center"/>
-                            <TextBlock Text="{Binding Description}" Grid.Row="1" Grid.Column="1" Margin="6" TextAlignment="Center"/>
-                            <TextBlock Text="{Binding From}" Grid.Row="1" Grid.Column="2" Margin="6" TextAlignment="Center"/>
-                            <TextBlock Text="{Binding To}" Grid.Row="1" Grid.Column="3" Margin="6" TextAlignment="Center"/>
-                            <TextBlock Text="{Binding TransportType}" Grid.Row="1" Grid.Column="4" Margin="6" TextAlignment="Center"/>
-                        </Grid>
-                    </StackPanel>
-
-                    <TextBlock Text="Tour Logs" FontWeight="Bold" FontSize="14" Margin="10,15,10,5"/>
-                    <ListBox ItemsSource="{Binding SelectedTour.TourLogs}" SelectedItem="{Binding SelectedTourLog, Mode=TwoWay}" Margin="10" Height="Auto" MinHeight="100">
-                        <ListBox.ItemTemplate>
-                            <DataTemplate>
-                                <StackPanel Orientation="Vertical" Margin="5">
-                                    <TextBlock Text="{Binding Date}" FontWeight="Bold"/>
-                                    <TextBlock Text="{Binding Comment}" FontStyle="Italic"/>
-                                    <TextBlock Text="{Binding Difficulty, StringFormat='Difficulty: {0}'}"/>
-                                    <TextBlock Text="{Binding TotalDistance, StringFormat='Distance: {0} km'}"/>
-                                    <TextBlock Text="{Binding TotalTime, StringFormat='Time: {0} h'}"/>
-                                    <TextBlock Text="{Binding Rating, StringFormat='Rating: {0}/5'}"/>
-                                </StackPanel>
-                            </DataTemplate>
-                        </ListBox.ItemTemplate>
-                    </ListBox>
-                  
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="10,10,0,0">
-                        <Button Content="Add Log"
-                        Command="{Binding OpenAddTourLogWindowCommand}"
-                        Margin="5"
-                        Padding="10,5"
-                        Background="#4CAF50"
-                        Foreground="White"
-                        FontWeight="Bold"
-                        BorderThickness="0"
-                        Cursor="Hand">
-                        </Button>
-
-                        <Button Content="Edit Log"
-                        Command="{Binding OpenEditTourLogWindowCommand}"
-                        Margin="5"
-                        Padding="10,5"
-                        Background="#CC5500"
-                        Foreground="White"
-                        FontWeight="Bold"
-                        BorderThickness="0"
-                        Cursor="Hand"
-                        IsEnabled="{Binding SelectedTourLog}">
-
-                        </Button>
-
-                        <Button Content="Delete Log"
-                        Command="{Binding DeleteTourLogCommand}"
-                        Margin="5"
-                        Padding="10,5"
-                        Background="Red"
-                        Foreground="White"
-                        FontWeight="Bold"
-                        BorderThickness="0"
-                        Cursor="Hand"
-                        IsEnabled="{Binding SelectedTourLog}">
-
-                        </Button>
-                    </StackPanel>
-                </StackPanel>
+                <local:TourDetailsControl Grid.Column="0" Grid.Row="1"/>
             </ScrollViewer>
         </Grid>
 

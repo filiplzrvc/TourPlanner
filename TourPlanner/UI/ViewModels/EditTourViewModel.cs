@@ -72,7 +72,15 @@ namespace TourPlanner.UI.ViewModels
 
             tourService.UpdateTour(SelectedTour);
             MessageBox.Show("Tour updated successfully!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
-            Application.Current.Windows[1]?.Close();
+            CloseWindow();
+        }
+
+        protected virtual void CloseWindow()
+        {
+            if (Application.Current != null && Application.Current.Windows.Count > 1)
+            {
+                Application.Current.Windows[1]?.Close();
+            }
         }
     }
 }
