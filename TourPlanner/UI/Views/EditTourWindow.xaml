@@ -1,0 +1,38 @@
+﻿<Window x:Class="TourPlanner.UI.Views.EditTourWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Edit Tour" Height="369" Width="792">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <TextBlock Text="Name:" Grid.Row="0" Grid.Column="0" Margin="5"/>
+        <TextBox Text="{Binding EditedTour.Name, UpdateSourceTrigger=PropertyChanged}" Grid.Row="0" Grid.Column="1" Margin="5"/>
+
+        <TextBlock Text="Description:" Grid.Row="1" Grid.Column="0" Margin="5"/>
+        <TextBox Text="{Binding EditedTour.Description, UpdateSourceTrigger=PropertyChanged}" Grid.Row="1" Grid.Column="1" Margin="5"/>
+
+        <TextBlock Text="From:" Grid.Row="2" Grid.Column="0" Margin="5"/>
+        <TextBox Text="{Binding EditedTour.From, UpdateSourceTrigger=PropertyChanged}" Grid.Row="2" Grid.Column="1" Margin="5"/>
+
+        <TextBlock Text="To:" Grid.Row="3" Grid.Column="0" Margin="5"/>
+        <TextBox Text="{Binding EditedTour.To, UpdateSourceTrigger=PropertyChanged}" Grid.Row="3" Grid.Column="1" Margin="5"/>
+
+        <TextBlock Text="Transport Type:" Grid.Row="4" Grid.Column="0" Margin="5"/>
+        <ComboBox ItemsSource="{Binding TransportTypes}" SelectedItem="{Binding EditedTour.TransportType, Mode=TwoWay}" Grid.Row="4" Grid.Column="1" Margin="5"/>
+
+        <Button Content="Update Tour" Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="2" Margin="5" Padding="5"
+                Command="{Binding ConfirmEditTourCommand}"/>
+    </Grid>
+</Window>

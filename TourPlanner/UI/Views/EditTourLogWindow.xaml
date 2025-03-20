@@ -1,0 +1,41 @@
+﻿<Window x:Class="TourPlanner.UI.Views.EditTourLogWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Edit Tour Log" Height="350" Width="400">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <TextBlock Text="Date:" Grid.Row="0" Grid.Column="0" Margin="5"/>
+        <DatePicker SelectedDate="{Binding EditedLog.Date, Mode=TwoWay}" Grid.Row="0" Grid.Column="1" Margin="5"/>
+
+        <TextBlock Text="Comment:" Grid.Row="1" Grid.Column="0" Margin="5"/>
+        <TextBox Text="{Binding EditedLog.Comment, UpdateSourceTrigger=PropertyChanged}" Grid.Row="1" Grid.Column="1" Margin="5"/>
+
+        <TextBlock Text="Difficulty (1-5):" Grid.Row="2" Grid.Column="0" Margin="5"/>
+        <TextBox Text="{Binding EditedLog.Difficulty, UpdateSourceTrigger=PropertyChanged}" Grid.Row="2" Grid.Column="1" Margin="5"/>
+
+        <TextBlock Text="Total Distance (km):" Grid.Row="3" Grid.Column="0" Margin="5"/>
+        <TextBox Text="{Binding EditedLog.TotalDistance, UpdateSourceTrigger=PropertyChanged}" Grid.Row="3" Grid.Column="1" Margin="5"/>
+
+        <TextBlock Text="Total Time (h):" Grid.Row="4" Grid.Column="0" Margin="5"/>
+        <TextBox Text="{Binding EditedLog.TotalTime, UpdateSourceTrigger=PropertyChanged}" Grid.Row="4" Grid.Column="1" Margin="5"/>
+
+        <TextBlock Text="Rating (1-5):" Grid.Row="5" Grid.Column="0" Margin="5"/>
+        <TextBox Text="{Binding EditedLog.Rating, UpdateSourceTrigger=PropertyChanged}" Grid.Row="5" Grid.Column="1" Margin="5"/>
+
+        <Button Content="Update Log" Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="2" Margin="5" Padding="5"
+                Command="{Binding ConfirmEditLogCommand}"/>
+    </Grid>
+</Window>
