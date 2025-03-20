@@ -1,0 +1,52 @@
+﻿<Window x:Class="TourPlanner.UI.Views.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
+        xmlns:local="clr-namespace:TourPlanner.UI.Views.Components"
+        mc:Ignorable="d"
+        Title="Tours" Height="600" Width="700" Background="#F5F5F5">
+
+    <DockPanel LastChildFill="True">
+        <Menu DockPanel.Dock="Top" Background="#E3E3E3">
+            <MenuItem Header="File"/>
+            <MenuItem Header="Edit"/>
+            <MenuItem Header="Options"/>
+            <MenuItem Header="Help"/>
+        </Menu>
+
+        <DockPanel DockPanel.Dock="Top" Background="#FFFFFF" >
+            <Grid VerticalAlignment="Top">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBox Text="Search..." Grid.Column="0" Margin="5" Height="25"/>
+                <Button Content="Search" Grid.Column="1" Margin="5" Padding="5,2" Background="#007ACC" Foreground="White"/>
+            </Grid>
+        </DockPanel>
+
+        <Grid Margin="10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="3*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- Left Panel: Tours List -->
+            <ScrollViewer Grid.Column="0" Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                <local:TourListControl Grid.Column="0" Grid.Row="1"/>
+            </ScrollViewer>
+
+            <!-- Right Panel: Tour Details -->
+            <ScrollViewer Grid.Column="1" Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                <local:TourDetailsControl Grid.Column="0" Grid.Row="1"/>
+            </ScrollViewer>
+        </Grid>
+
+    </DockPanel>
+</Window>
