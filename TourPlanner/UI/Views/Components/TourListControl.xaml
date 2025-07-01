@@ -3,41 +3,73 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:TourPlanner.UI.Views.Components"
-             xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
-    <Grid>
-        <StackPanel Background="#E0F7FA">
-            <Grid>
-                <TextBlock Text="Tours" FontWeight="Bold" FontSize="14"/>
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
 
-                    <Button Command="{Binding OpenAddTourWindowCommand}" Padding="3" Margin="3" Background="#4CAF50" Foreground="White" BorderThickness="0" Cursor="Hand">
-                        <StackPanel Orientation="Horizontal">
-                            <md:PackIcon Kind="PlusBox" Width="13" Height="13" Margin="2"/>
-                        </StackPanel>
-                    </Button>
-                    <Button Command="{Binding DeleteTourCommand}" Padding="3" Margin="3" Background="#F44336" Foreground="White" BorderThickness="0" Cursor="Hand">
-                        <StackPanel Orientation="Horizontal">
-                            <md:PackIcon Kind="Delete" Width="13" Height="13" Margin="2"/>
-                        </StackPanel>
-                    </Button>
-                    <Button Command="{Binding OpenEditTourWindowCommand}" Padding="3" Margin="3" Background="#CC5500" Foreground="white" BorderThickness="0">
-                        <StackPanel Orientation="Horizontal">
-                            <md:PackIcon Kind="Edit" Width="13" Height="13" Margin="2"/>
-                        </StackPanel>
-                    </Button>
+    <Grid Background="{DynamicResource MahApps.Brushes.Background}">
+        <StackPanel Margin="20">
+
+            <!-- Überschrift + Buttons -->
+            <DockPanel Margin="0,0,0,10">
+                <TextBlock Text="Tours"
+                           FontSize="16"
+                           FontWeight="Bold"
+                           DockPanel.Dock="Left"
+                           VerticalAlignment="Center"/>
+
+                <StackPanel Orientation="Horizontal"
+                            DockPanel.Dock="Right"
+                            HorizontalAlignment="Right">
+
+                    <Button Content="Add"
+                            Command="{Binding OpenAddTourWindowCommand}"
+                            Background="MediumSeaGreen"
+                            Foreground="White"
+                            Padding="5"
+                            Margin="0,0,5,0"
+                            FontWeight="Bold"/>
+
+                    <Button Content="Delete"
+                            Command="{Binding DeleteTourCommand}"
+                            Background="Crimson"
+                            Foreground="White"
+                            Padding="5"
+                            Margin="0,0,5,0"
+                            FontWeight="Bold"/>
+
+                    <Button Content="Edit"
+                            Command="{Binding OpenEditTourWindowCommand}"
+                            Background="DarkOrange"
+                            Foreground="White"
+                            Padding="5"
+                            FontWeight="Bold"/>
                 </StackPanel>
-            </Grid>
-            <ListBox ItemsSource="{Binding Tours}" SelectedItem="{Binding SelectedTour, Mode=TwoWay}" Margin="10" Height="Auto" MinHeight="100">
+            </DockPanel>
+
+            <!-- Tour-Liste -->
+            <ListBox ItemsSource="{Binding Tours}"
+                     SelectedItem="{Binding SelectedTour, Mode=TwoWay}"
+                     MinHeight="100"
+                     Background="{DynamicResource MahApps.Brushes.Control.Background}"
+                     BorderBrush="{x:Null}">
                 <ListBox.ItemTemplate>
                     <DataTemplate>
-                        <TextBlock Text="{Binding Name}" Margin="3"/>
+                        <Border Background="{DynamicResource MahApps.Brushes.Control.Background}"
+                                Padding="6"
+                                Margin="2"
+                                CornerRadius="4">
+                            <TextBlock Text="{Binding Name}" FontSize="14"/>
+                        </Border>
                     </DataTemplate>
                 </ListBox.ItemTemplate>
             </ListBox>
-            <TextBlock Text="No tours available" FontStyle="Italic" Foreground="Gray" HorizontalAlignment="Center">
+
+            <!-- Kein Inhalt Hinweis -->
+            <TextBlock Text="No tours available"
+                       FontStyle="Italic"
+                       Foreground="Gray"
+                       HorizontalAlignment="Center"
+                       Margin="10,5,10,0">
                 <TextBlock.Style>
                     <Style TargetType="TextBlock">
                         <Setter Property="Visibility" Value="Collapsed"/>
@@ -49,6 +81,7 @@
                     </Style>
                 </TextBlock.Style>
             </TextBlock>
+
         </StackPanel>
     </Grid>
 </UserControl>

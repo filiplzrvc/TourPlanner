@@ -45,6 +45,67 @@ namespace TourPlanner.UI.ViewModels
             }
         }
 
+        public ICommand GenerateReportCommand => new RelayCommand(_ =>
+        {
+            if (SelectedTour != null)
+            {
+                string fileName = $"{SelectedTour.Name}_Report.pdf".Replace(" ", "_");
+                string desktop = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+                string filePath = Path.Combine(desktop, fileName);
+
+                PdfReportGenerator.CreateSingleTourReport(SelectedTour, filePath);
+                MessageBox.Show("PDF report was created successfully!", "successfully", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+        }, _ => SelectedTour != null);
+
+
+        public ICommand GenerateSummaryReportCommand => new RelayCommand(_ =>
+        {
+            if (Tours.Count > 0)
+            {
+                string fileName = $"Tour_Summary_Report.pdf";
+                string desktop = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+                string filePath = Path.Combine(desktop, fileName);
+
+                PdfReportGenerator.CreateSummaryReport(Tours, filePath);
+                MessageBox.Show("Summary PDF report created successfully!", "successfully", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+        }, _ => Tours.Count > 0);
+
+        public ICommand ExportToursCommand => new RelayCommand(_ =>
+        {
+            var saveDialog = new Microsoft.Win32.SaveFileDialog
+            {
+                Filter = "JSON-Dateien (*.json)|*.json",
+                FileName = "tours_export.json",
+                DefaultExt = ".json"
+            };
+
+            if (saveDialog.ShowDialog() == true)
+            {
+                TourDataSerializer.ExportTours(Tours, saveDialog.FileName);
+                MessageBox.Show("Tour data exported successfully.", "Export", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+        }, _ => Tours.Count > 0);
+
+        public ICommand ImportToursCommand => new RelayCommand(_ =>
+        {
+            var openDialog = new Microsoft.Win32.OpenFileDialog
+            {
+                Filter = "JSON-Dateien (*.json)|*.json"
+            };
+
+            if (openDialog.ShowDialog() == true)
+            {
+                var importedTours = TourDataSerializer.ImportTours(openDialog.FileName);
+                foreach (var tour in importedTours)
+                {
+                    Tours.Add(tour);
+                }
+                MessageBox.Show("Tour data imported successfully.", "Import", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+        });
+
         public Tour? SelectedTour
         {
             get => selectedTour;

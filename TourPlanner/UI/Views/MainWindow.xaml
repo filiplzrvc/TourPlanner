@@ -10,7 +10,13 @@
 
     <DockPanel LastChildFill="True">
         <Menu DockPanel.Dock="Top" Background="#E3E3E3">
-            <MenuItem Header="File"/>
+            <MenuItem Header="File">
+                <MenuItem Header="Import Tours" Command="{Binding ImportToursCommand}" />
+                <MenuItem Header="Export Tours" Command="{Binding ExportToursCommand}" />
+                <Separator/>
+                <MenuItem Header="Generate Tour Report" Command="{Binding GenerateReportCommand}" />
+                <MenuItem Header="Generate Summary Report" Command="{Binding GenerateSummaryReportCommand}" />
+            </MenuItem>
             <MenuItem Header="Edit"/>
             <MenuItem Header="Options"/>
             <MenuItem Header="Help"/>

@@ -91,40 +91,38 @@
 
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="10,10,0,0">
                 <Button Content="Add Log"
-         Command="{Binding OpenAddTourLogWindowCommand}"
-         Margin="5"
-         Padding="10,5"
-         Background="#4CAF50"
-         Foreground="White"
-         FontWeight="Bold"
-         BorderThickness="0"
-         Cursor="Hand">
+                    Command="{Binding OpenAddTourLogWindowCommand}"
+                     Margin="5"
+                     Padding="10,5"
+                     Background="#4CAF50"
+                     Foreground="White"
+                     FontWeight="Bold"
+                     BorderThickness="0"
+                     Cursor="Hand"> 
                 </Button>
 
                 <Button Content="Edit Log"
-         Command="{Binding OpenEditTourLogWindowCommand}"
-         Margin="5"
-         Padding="10,5"
-         Background="#CC5500"
-         Foreground="White"
-         FontWeight="Bold"
-         BorderThickness="0"
-         Cursor="Hand"
-         IsEnabled="{Binding SelectedTourLog}">
-
+                     Command="{Binding OpenEditTourLogWindowCommand}"
+                     Margin="5"
+                     Padding="10,5"
+                     Background="#CC5500"
+                     Foreground="White"
+                     FontWeight="Bold"
+                     BorderThickness="0"
+                     Cursor="Hand"
+                     IsEnabled="{Binding SelectedTourLog}"> 
                 </Button>
 
                 <Button Content="Delete Log"
-         Command="{Binding DeleteTourLogCommand}"
-         Margin="5"
-         Padding="10,5"
-         Background="Red"
-         Foreground="White"
-         FontWeight="Bold"
-         BorderThickness="0"
-         Cursor="Hand"
-         IsEnabled="{Binding SelectedTourLog}">
-
+                     Command="{Binding DeleteTourLogCommand}"
+                     Margin="5"
+                     Padding="10,5"
+                     Background="Red"
+                     Foreground="White"
+                     FontWeight="Bold"
+                     BorderThickness="0"
+                     Cursor="Hand"
+                     IsEnabled="{Binding SelectedTourLog}">
                 </Button>
             </StackPanel>
         </StackPanel>
