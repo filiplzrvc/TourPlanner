@@ -18,7 +18,7 @@ namespace TourPlanner
     {
         public ObservableCollection<TourLog> TourLogs { get; set; } = new ObservableCollection<TourLog>();
 
-
+        
         private string name = "Unnamed Tour";
         private string description = "No description available";
         private string from = "Unknown";

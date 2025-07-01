@@ -1,38 +1,57 @@
 ﻿<Window x:Class="TourPlanner.UI.Views.AddTourWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Add Tour" Height="300" Width="400">
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="*"/>
-        </Grid.ColumnDefinitions>
+        Title="Add Tour" Height="420" Width="450"
+        Background="#FAFAFA" WindowStartupLocation="CenterScreen">
 
-        <TextBlock Text="Name:" Grid.Row="0" Grid.Column="0" Margin="5"/>
-        <TextBox Text="{Binding NewTourName, UpdateSourceTrigger=PropertyChanged}" Grid.Row="0" Grid.Column="1" Margin="5"/>
+    <Border Background="White" CornerRadius="10" Padding="20" Margin="10" BorderBrush="#DDDDDD" BorderThickness="1" >
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
 
-        <TextBlock Text="Description:" Grid.Row="1" Grid.Column="0" Margin="5"/>
-        <TextBox Text="{Binding NewTourDesc, UpdateSourceTrigger=PropertyChanged}" Grid.Row="1" Grid.Column="1" Margin="5"/>
+            <!-- Titel -->
+            <TextBlock Text="Add New Tour"
+                       FontSize="18"
+                       FontWeight="Bold"
+                       Foreground="#333333"
+                       HorizontalAlignment="Center"
+                       Margin="0,0,0,20"/>
 
-        <TextBlock Text="From:" Grid.Row="2" Grid.Column="0" Margin="5"/>
-        <TextBox Text="{Binding NewTourFrom, UpdateSourceTrigger=PropertyChanged}" Grid.Row="2" Grid.Column="1" Margin="5"/>
+            <!-- Formular -->
+            <StackPanel Grid.Row="1" VerticalAlignment="Top" Margin="10,0" >
+                <Label Content="Name:"/>
+                <TextBox Text="{Binding NewTourName}" Margin="0,0,0,10" Padding="6"/>
 
-        <TextBlock Text="To:" Grid.Row="3" Grid.Column="0" Margin="5"/>
-        <TextBox Text="{Binding NewTourTo, UpdateSourceTrigger=PropertyChanged}" Grid.Row="3" Grid.Column="1" Margin="5"/>
+                <Label Content="Description:"/>
+                <TextBox Text="{Binding NewTourDesc}" Margin="0,0,0,10" Padding="6"/>
 
-        <TextBlock Text="Transport Type:" Grid.Row="4" Grid.Column="0" Margin="5"/>
-        <ComboBox ItemsSource="{Binding TransportTypes}" SelectedItem="{Binding NewTourTransportType}" Grid.Row="4" Grid.Column="1" Margin="5"/>
+                <Label Content="From:"/>
+                <TextBox Text="{Binding NewTourFrom}" Margin="0,0,0,10" Padding="6"/>
 
-        <Button Content="Add Tour" Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="2" Margin="5" Padding="5"
-                Command="{Binding ConfirmAddTourCommand}"/>
-    </Grid>
+                <Label Content="To:"/>
+                <TextBox Text="{Binding NewTourTo}" Margin="0,0,0,10" Padding="6"/>
+
+                <Label Content="Transport Type:"/>
+                <ComboBox ItemsSource="{Binding TransportTypes}"
+                          SelectedItem="{Binding NewTourTransportType}"
+                          Margin="0,0,0,10"
+                          Padding="6"/>
+            </StackPanel>
+
+            <!-- Button -->
+            <Button Content="Add Tour"
+                    Grid.Row="2"
+                    Command="{Binding ConfirmAddTourCommand}"
+                    Background="#1976D2"
+                    Foreground="White"
+                    FontWeight="Bold"
+                    Padding="10"
+                    Margin="0,20,0,0"
+                    BorderThickness="0"
+                    HorizontalAlignment="Stretch"/>
+        </Grid>
+    </Border>
 </Window>
