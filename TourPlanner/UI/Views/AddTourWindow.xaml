@@ -1,7 +1,7 @@
 ﻿<Window x:Class="TourPlanner.UI.Views.AddTourWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Add Tour" Height="420" Width="450"
+        Title="Add Tour" Height="578" Width="450"
         Background="#FAFAFA" WindowStartupLocation="CenterScreen">
 
     <Border Background="White" CornerRadius="10" Padding="20" Margin="10" BorderBrush="#DDDDDD" BorderThickness="1" >
