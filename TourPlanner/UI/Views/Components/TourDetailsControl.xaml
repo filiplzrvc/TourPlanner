@@ -59,21 +59,30 @@
                 </Grid>
             </StackPanel>
 
-            <!-- Tour Logs -->
-            <TextBlock Grid.Row="3" Text="Tour Logs" FontWeight="Bold" FontSize="16" Margin="0,10"/>
-              <TextBox Text="{Binding TourLogSearchQuery, UpdateSourceTrigger=PropertyChanged}"
-             Width="200"
-             Height="25"
-             Margin="10,0,0,0"
-             VerticalAlignment="Center"
-             Grid.Column="1" />
-            <ListBox Grid.Row="3"
-         IItemsSource="{Binding FilteredTourLogs}" SelectedItem="{Binding SelectedTourLog, Mode=TwoWay}" 
+            <StackPanel Grid.Row="3" Margin="0,0,0,10">
+
+                <!-- Titel + Suchbox nebeneinander -->
+                <DockPanel Margin="0,0,0,5">
+                    <!-- SearchBox rechts -->
+                    <TextBox Text="{Binding TourLogSearchQuery, UpdateSourceTrigger=PropertyChanged}"
+                 Width="250"
+                 Height="25"
+                 VerticalAlignment="Center"
+                 DockPanel.Dock="Right"/>
+                    <!-- Titel links -->
+                    <TextBlock Text="Tour Logs"
+                   FontWeight="Bold"
+                   FontSize="16"
+                   VerticalAlignment="Center"/>
+                </DockPanel>
+                <ListBox 
+         ItemsSource="{Binding FilteredTourLogs}" SelectedItem="{Binding SelectedTourLog, Mode=TwoWay}" 
          Margin="0,30,0,10"
          MinHeight="100"
          BorderBrush="#DDD"
          BorderThickness="1"
          Background="White">
+                
 
                 <!-- Verhindert Verblassen bei Auswahl -->
                 <ListBox.ItemContainerStyle>
@@ -125,6 +134,8 @@
                     </DataTemplate>
                 </ListBox.ItemTemplate>
             </ListBox>
+            </StackPanel>
+
 
             <!-- Buttons -->
             <StackPanel Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,0,0">
