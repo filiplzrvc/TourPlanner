@@ -5,11 +5,42 @@
              StartupUri="UI/Views/MainWindow.xaml">
     <Application.Resources>
         <ResourceDictionary>
+            <!-- MahApps Styles -->
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Themes/Light.Blue.xaml" />
             </ResourceDictionary.MergedDictionaries>
+
+            <!-- Custom Button Styles -->
+            <Style x:Key="SectionButtonStyle" TargetType="Button">
+                <Setter Property="Background" Value="#1976D2"/>
+                <Setter Property="Foreground" Value="White"/>
+                <Setter Property="FontWeight" Value="Bold"/>
+                <Setter Property="Padding" Value="10,5"/>
+                <Setter Property="Margin" Value="5"/>
+                <Setter Property="BorderThickness" Value="0"/>
+                <Setter Property="Cursor" Value="Hand"/>
+                <Setter Property="SnapsToDevicePixels" Value="True"/>
+                <Setter Property="Effect">
+                    <Setter.Value>
+                        <DropShadowEffect BlurRadius="4" ShadowDepth="2" Opacity="0.2"/>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <Style x:Key="ActionButtonGreenStyle" TargetType="Button" BasedOn="{StaticResource SectionButtonStyle}">
+                <Setter Property="Background" Value="#4CAF50"/>
+            </Style>
+
+            <Style x:Key="ActionButtonOrangeStyle" TargetType="Button" BasedOn="{StaticResource SectionButtonStyle}">
+                <Setter Property="Background" Value="#FF9800"/>
+            </Style>
+
+            <Style x:Key="ActionButtonRedStyle" TargetType="Button" BasedOn="{StaticResource SectionButtonStyle}">
+                <Setter Property="Background" Value="#F44336"/>
+            </Style>
+
         </ResourceDictionary>
     </Application.Resources>
 </Application>

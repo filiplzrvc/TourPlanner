@@ -6,7 +6,7 @@
         xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
         xmlns:local="clr-namespace:TourPlanner.UI.Views.Components"
         mc:Ignorable="d"
-        Title="Tours" Height="600" Width="700" Background="#F5F5F5">
+        Title="Tours" Height="772" Width="1148" Background="#F5F5F5">
 
     <DockPanel LastChildFill="True">
         <Menu DockPanel.Dock="Top" Background="#E3E3E3">
