@@ -59,9 +59,10 @@
             </StackPanel>
         </DockPanel>
 
+
         <!-- Tourliste -->
         <ScrollViewer Grid.Row="1" Margin="20,0" VerticalScrollBarVisibility="Auto">
-            <ListBox ItemsSource="{Binding Tours}"
+            <ListBox ItemsSource="{Binding FilteredTours}"
                      SelectedItem="{Binding SelectedTour, Mode=TwoWay}"
                      Background="White"
                      BorderBrush="#DDD"
@@ -100,7 +101,7 @@
                 <Style TargetType="TextBlock">
                     <Setter Property="Visibility" Value="Collapsed"/>
                     <Style.Triggers>
-                        <DataTrigger Binding="{Binding Tours.Count}" Value="0">
+                        <DataTrigger Binding="{Binding FilteredTours.Count}" Value="0">
                             <Setter Property="Visibility" Value="Visible"/>
                         </DataTrigger>
                     </Style.Triggers>
