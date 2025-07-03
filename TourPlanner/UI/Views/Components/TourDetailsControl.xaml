@@ -42,7 +42,7 @@
             
 
             <StackPanel DataContext="{Binding SelectedTour}" Margin="10">
-                <Image Name="ImgTour" Margin="3" Height="150" Width="Auto" HorizontalAlignment="Stretch"/>
+                <Image Source="{Binding TourImage}" Height="150" Stretch="Uniform" Margin="5"/>
 
                 <Grid Margin="5">
                     <Grid.RowDefinitions>
@@ -73,8 +73,26 @@
                 </Grid>
             </StackPanel>
 
-            <TextBlock Text="Tour Logs" FontWeight="Bold" FontSize="14" Margin="10,15,10,5"/>
-            <ListBox ItemsSource="{Binding SelectedTour.TourLogs}" SelectedItem="{Binding SelectedTourLog, Mode=TwoWay}" Margin="10" Height="Auto" MinHeight="100">
+            <Grid Margin="10,15,10,5">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Text="Tour Logs"
+               FontWeight="Bold"
+               FontSize="14"
+               VerticalAlignment="Center"
+               Grid.Column="0" />
+
+                <TextBox Text="{Binding TourLogSearchQuery, UpdateSourceTrigger=PropertyChanged}"
+             Width="200"
+             Height="25"
+             Margin="10,0,0,0"
+             VerticalAlignment="Center"
+             Grid.Column="1" />
+            </Grid>
+            <ListBox ItemsSource="{Binding FilteredTourLogs}" SelectedItem="{Binding SelectedTourLog, Mode=TwoWay}" Margin="10" Height="Auto" MinHeight="100">
                 <ListBox.ItemTemplate>
                     <DataTemplate>
                         <StackPanel Orientation="Vertical" Margin="5">

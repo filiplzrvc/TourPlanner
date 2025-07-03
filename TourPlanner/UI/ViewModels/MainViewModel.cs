@@ -8,6 +8,7 @@ using TourPlanner.UI.Views;
 using System.Windows;
 using System.Windows.Media;
 using System.IO;
+using System.Linq;
 
 namespace TourPlanner.UI.ViewModels
 {
@@ -25,9 +26,42 @@ namespace TourPlanner.UI.ViewModels
             get => SelectedTour?.TourLogs ?? new ObservableCollection<TourLog> (); 
         }
 
+        public ObservableCollection<Tour> FilteredTours { get; } = new();
+        public ObservableCollection<TourLog> FilteredTourLogs { get; } = new();
+
 
         private string newTourName = string.Empty;
         private string newTourDesc = string.Empty;
+
+        private string searchQuery = string.Empty;
+        public string SearchQuery
+        {
+            get => searchQuery;
+            set
+            {
+                if (searchQuery != value)
+                {
+                    searchQuery = value;
+                    OnPropertyChanged(nameof(SearchQuery));
+                    ApplySearchFilter();
+                }
+            }
+        }
+
+        private string tourLogSearchQuery = string.Empty;
+        public string TourLogSearchQuery
+        {
+            get => tourLogSearchQuery;
+            set
+            {
+                if (tourLogSearchQuery != value)
+                {
+                    tourLogSearchQuery = value;
+                    OnPropertyChanged(nameof(TourLogSearchQuery));
+                    ApplyTourLogSearchFilter();
+                }
+            }
+        }
 
         public MainViewModel()
         {
@@ -42,6 +76,79 @@ namespace TourPlanner.UI.ViewModels
             foreach (var log in tourLogService.GetTourLogs())
             {
                 TourLogs.Add(log);
+            }
+            ApplySearchFilter();
+            ApplyTourLogSearchFilter();
+
+        }
+
+        private bool MatchesTourLogSearch(TourLog log, string lowerSearch)
+        {
+            return log.Comment.ToLower().Contains(lowerSearch) ||
+                   log.Date.ToString("g").ToLower().Contains(lowerSearch) ||
+                   log.Difficulty.ToString().ToLower().Contains(lowerSearch) ||
+                   log.TotalDistance.ToString().ToLower().Contains(lowerSearch) ||
+                   log.TotalTime.ToString().ToLower().Contains(lowerSearch) ||
+                   log.Rating.ToString().ToLower().Contains(lowerSearch);
+        }
+
+        private bool MatchesComputedFields(Tour tour, string lowerSearch)
+        {
+            if (!tour.TourLogs.Any())
+                return false;
+
+            double avgTime = tour.TourLogs.Any() ? tour.TourLogs.Average(l => l.TotalTime) : 0.0;
+            double avgDist = tour.TourLogs.Any() ? tour.TourLogs.Average(l => l.TotalDistance) : 0.0;
+            double avgRating = tour.TourLogs.Any() ? tour.TourLogs.Average(l => l.Rating) : 0.0;
+
+            return avgTime.ToString().ToLower().Contains(lowerSearch) ||
+                   avgDist.ToString().ToLower().Contains(lowerSearch) ||
+                   avgRating.ToString().ToLower().Contains(lowerSearch);
+        }
+
+        private void ApplySearchFilter()
+        {
+            FilteredTours.Clear();
+
+            var lowerSearch = SearchQuery.ToLower();
+
+            foreach (var tour in Tours)
+            {
+                bool inBasicFields =
+                    tour.Name.ToLower().Contains(lowerSearch) ||
+                    tour.Description.ToLower().Contains(lowerSearch) ||
+                    tour.From.ToLower().Contains(lowerSearch) ||
+                    tour.To.ToLower().Contains(lowerSearch) ||
+                    tour.TransportType.ToString().ToLower().Contains(lowerSearch);
+
+                bool inComputedFields = MatchesComputedFields(tour, lowerSearch);
+                bool inTourLogs = tour.TourLogs.Any(log => MatchesTourLogSearch(log, lowerSearch));
+
+                if (inBasicFields || inComputedFields || inTourLogs)
+                {
+                    FilteredTours.Add(tour);
+                }
+            }
+
+            if (FilteredTours.Count == 0)
+                SelectedTour = null;
+        }
+
+        private void ApplyTourLogSearchFilter()
+        {
+            FilteredTourLogs.Clear();
+
+            if (SelectedTour == null)
+                return;
+
+            var lowerSearch = TourLogSearchQuery.ToLower();
+
+            foreach (var log in SelectedTour.TourLogs)
+            {
+                if (MatchesTourLogSearch(log, lowerSearch))
+                {
+                    FilteredTourLogs.Add(log);
+                }
             }
         }
 
@@ -104,6 +211,7 @@ namespace TourPlanner.UI.ViewModels
                 }
                 MessageBox.Show("Tour data imported successfully.", "Import", MessageBoxButton.OK, MessageBoxImage.Information);
             }
+            ApplySearchFilter();
         });
 
         public Tour? SelectedTour
@@ -115,6 +223,7 @@ namespace TourPlanner.UI.ViewModels
                 {
                     selectedTour = value;
                     OnPropertyChanged(nameof(SelectedTour));
+                    ApplyTourLogSearchFilter();
                 }
             }
         }
@@ -138,9 +247,10 @@ namespace TourPlanner.UI.ViewModels
                 DataContext = new AddTourViewModel(tourService, Tours)
             };
             window.ShowDialog();
+            ApplySearchFilter();
+
         });
-
-
+      
         public ICommand OpenEditTourWindowCommand => new RelayCommand(_ =>
         {
             if (SelectedTour != null)
@@ -162,6 +272,7 @@ namespace TourPlanner.UI.ViewModels
                 Tours.Remove(SelectedTour);
                 SelectedTour = null;
             }
+            ApplySearchFilter();
         }, _ => SelectedTour != null);
 
         public Brush DeleteTextColor
@@ -185,7 +296,7 @@ namespace TourPlanner.UI.ViewModels
             window.DataContext = new AddTourLogViewModel(tourLogService, SelectedTour.TourLogs);
             window.ShowDialog();
             DeleteTextColor = Brushes.White;
-
+            ApplyTourLogSearchFilter();
         });
 
         public ICommand OpenEditTourLogWindowCommand => new RelayCommand(_ =>
@@ -196,12 +307,13 @@ namespace TourPlanner.UI.ViewModels
                 return;
             }
 
-                var window = new EditTourLogWindow
-                {
-                    DataContext = new EditTourLogViewModel(tourLogService, SelectedTourLog)
-                };
-                window.ShowDialog();
-            
+            var window = new EditTourLogWindow
+            {
+                DataContext = new EditTourLogViewModel(tourLogService, SelectedTourLog)
+            };
+            window.ShowDialog();
+            ApplyTourLogSearchFilter();
+
         }, _ => SelectedTourLog != null);
 
         public ICommand DeleteTourLogCommand => new RelayCommand(_ =>
@@ -212,12 +324,13 @@ namespace TourPlanner.UI.ViewModels
                 TourLogs.Remove(SelectedTourLog);
                 SelectedTourLog = null;
             }
+            ApplyTourLogSearchFilter();
         }, _ => SelectedTourLog != null);
+
 
 
         public event PropertyChangedEventHandler? PropertyChanged;
         private void OnPropertyChanged(string propertyName) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-
 
     }
 }

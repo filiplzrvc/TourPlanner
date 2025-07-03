@@ -28,8 +28,7 @@
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                <TextBox Text="Search..." Grid.Column="0" Margin="5" Height="25"/>
-                <Button Content="Search" Grid.Column="1" Margin="5" Padding="5,2" Background="#007ACC" Foreground="White"/>
+                <TextBox Text="{Binding SearchQuery, UpdateSourceTrigger=PropertyChanged}" Grid.Column="0" Margin="5" Height="25"/>
             </Grid>
         </DockPanel>
 

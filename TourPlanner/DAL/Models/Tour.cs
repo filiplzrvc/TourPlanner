@@ -2,10 +2,12 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Media.Imaging;
 
 namespace TourPlanner
 {
@@ -37,7 +39,24 @@ namespace TourPlanner
         public double Distance { get => distance; set => SetProperty(ref distance, value); }
         public double EstimatedTime { get => estimatedTime; set => SetProperty(ref estimatedTime, value); }
         public DateTime Date { get => date; set => SetProperty(ref date, value); }
-        public string Image { get => image; set => SetProperty(ref image, string.IsNullOrEmpty(value) ? "../../Images/TestRoute.png" : value); }
+        public string Image { get => image; set => SetProperty(ref image, value); }
+
+        public BitmapImage TourImage
+        {
+            get
+            {
+                try
+                {
+                    if (!string.IsNullOrEmpty(Image) && File.Exists(Image))
+                    {
+                        return new BitmapImage(new Uri(Image, UriKind.Absolute));
+                    }
+                }
+                catch { }
+                // Fallback
+                return new BitmapImage(new Uri("pack://application:,,,/Images/TestRoute.png"));
+            }
+        }
 
         public event PropertyChangedEventHandler? PropertyChanged;
 

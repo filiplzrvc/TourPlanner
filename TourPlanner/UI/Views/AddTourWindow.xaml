@@ -39,6 +39,14 @@
                           SelectedItem="{Binding NewTourTransportType}"
                           Margin="0,0,0,10"
                           Padding="6"/>
+
+                <Label Content="Image:"/>
+                <Image Source="{Binding ImagePath}" Height="100" Margin="0,5"/>
+                <Button Content="Choose Image"
+                    Command="{Binding SelectImageCommand}"
+                    Margin="0,0,0,10"
+                    Padding="6"/>
+
             </StackPanel>
 
             <!-- Button -->

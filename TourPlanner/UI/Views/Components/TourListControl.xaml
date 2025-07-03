@@ -47,7 +47,7 @@
             </DockPanel>
 
             <!-- Tour-Liste -->
-            <ListBox ItemsSource="{Binding Tours}"
+            <ListBox ItemsSource="{Binding FilteredTours}"
                      SelectedItem="{Binding SelectedTour, Mode=TwoWay}"
                      MinHeight="100"
                      Background="{DynamicResource MahApps.Brushes.Control.Background}"
@@ -74,7 +74,7 @@
                     <Style TargetType="TextBlock">
                         <Setter Property="Visibility" Value="Collapsed"/>
                         <Style.Triggers>
-                            <DataTrigger Binding="{Binding Tours.Count}" Value="0">
+                            <DataTrigger Binding="{Binding FilteredTours.Count}" Value="0">
                                 <Setter Property="Visibility" Value="Visible"/>
                             </DataTrigger>
                         </Style.Triggers>
