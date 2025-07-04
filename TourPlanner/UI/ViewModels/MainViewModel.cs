@@ -192,21 +192,28 @@ namespace TourPlanner.UI.ViewModels
 
         public ICommand ExportToursCommand => new RelayCommand(_ =>
         {
-            var saveDialog = new Microsoft.Win32.SaveFileDialog
+            try
             {
-                Filter = "JSON-Dateien (*.json)|*.json",
-                FileName = "tours_export.json",
-                DefaultExt = ".json"
-            };
+                var saveDialog = new Microsoft.Win32.SaveFileDialog
+                {
+                    Filter = "JSON-Dateien (*.json)|*.json",
+                    FileName = "tours_export.json",
+                    DefaultExt = ".json"
+                };
 
-            if (saveDialog.ShowDialog() == true)
+                if (saveDialog.ShowDialog() == true)
+                {
+                    _logger.Info($"Exporting tours to {saveDialog.FileName}");
+                    TourDataSerializer.ExportTours(Tours, saveDialog.FileName);
+                    _dialogService.ShowMessage("Tour data exported successfully.", "Export");
+                    _logger.Info("Tours exported successfully.");
+
+                }
+            }catch(Exception ex)
             {
-                _logger.Info($"Exporting tours to {saveDialog.FileName}");
-                TourDataSerializer.ExportTours(Tours, saveDialog.FileName);
-                _dialogService.ShowMessage("Tour data exported successfully.", "Export");
-                _logger.Info("Tours exported successfully.");
-
+                _dialogService.ShowMessage($"Tour data failed to export {ex}", "Error");
             }
+            
         }, _ => Tours.Count > 0);
 
         public ICommand ImportToursCommand => new RelayCommand(_ =>

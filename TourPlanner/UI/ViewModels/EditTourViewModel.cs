@@ -80,23 +80,16 @@ namespace TourPlanner.UI.ViewModels
                 SelectedTour.Image = EditedTour.Image;
 
                 tourService.UpdateTour(SelectedTour);
-                _dialogService.ShowMessage($"Tour [{SelectedTour.Name}] updated successfully!", "Success");
                 _dialogService.ShowMessage("Tour updated successfully!", "Success");
+                _logger.Info($"Tour [{SelectedTour.Name}] updated successfully!");
 
-                CloseWindow();
             }catch(Exception ex)
             {
                 _logger.Error($"Error while updating tour: {ex}");
             }
+            _dialogService.CloseCurrentWindow();
 
         }
 
-        protected virtual void CloseWindow()
-        {
-            if (Application.Current != null && Application.Current.Windows.Count > 1)
-            {
-                Application.Current.Windows[1]?.Close();
-            }
-        }
     }
 }

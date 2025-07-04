@@ -25,13 +25,6 @@ namespace TourPlanner.UI.ViewModels
 
         public ICommand ConfirmAddLogCommand { get; }
 
-        private bool IsRunningInTest()
-        {
-            return AppDomain.CurrentDomain.GetAssemblies()
-                .Any(a => a.FullName.ToLowerInvariant().Contains("nunit")
-                       || a.FullName.ToLowerInvariant().Contains("xunit")
-                       || a.FullName.ToLowerInvariant().Contains("mstest"));
-        }
         public AddTourLogViewModel(TourLogService logService, ObservableCollection<TourLog> logs)
         {
             this.logService = logService;
@@ -42,7 +35,6 @@ namespace TourPlanner.UI.ViewModels
 
         private void AddLog()
         {
-            _logger.Debug("AddTourLog command executed.");
             if (logs == null)
             {
                 _dialogService.ShowMessage("No logs found for the selected tour!", "Error");
@@ -63,15 +55,13 @@ namespace TourPlanner.UI.ViewModels
                 logs.Add(newLog);
 
                 _logger.Info($"Tour log added successfully: {LogComment} on {LogDate}");
-                _logger.Debug($"Log details: {newLog}");
                 _dialogService.ShowMessage("Tour log added successfully!", "Success");
 
             }catch(Exception ex)
             {
                 _logger.Error($"Error while adding tour log: ${ex}.");
             }
-
-
+            _dialogService.CloseCurrentWindow();
         }
     }
 }

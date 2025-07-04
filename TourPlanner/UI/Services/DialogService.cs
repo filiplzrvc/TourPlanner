@@ -37,6 +37,13 @@ namespace TourPlanner.UI.Services
             MessageBox.Show(message, type, MessageBoxButton.OK, this.GetMessageBoxImageType(type));
         }
 
-       
+        public void CloseCurrentWindow()
+        {
+            if (Application.Current != null && Application.Current.Windows.Count > 1)
+            {
+                Application.Current.Windows[1]?.Close();
+            }
+        }
+
     }
 }

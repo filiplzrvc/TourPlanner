@@ -101,7 +101,6 @@ namespace TourPlanner.UI.ViewModels
 
         private void AddTour()
         {
-            _logger.Debug("AddTour command executed.");
             if (!CanAddTour())
             {
                 _dialogService.ShowMessage("Please fill out all fields!", "Error");
@@ -123,21 +122,13 @@ namespace TourPlanner.UI.ViewModels
                 tours.Add(newTour);
                 _logger.Info($"Tour added successfully: {newTour.Name}");
                 _dialogService.ShowMessage("Tour added successfully!", "Success");
-                CloseWindow();
             }catch(Exception ex)
             {
                 _logger.Error($"Error while adding tour: {ex}");
             }
-        }
+            _dialogService.CloseCurrentWindow();
 
-        protected virtual void CloseWindow()
-        {
-            if (Application.Current != null && Application.Current.Windows.Count > 1)
-            {
-                Application.Current.Windows[1]?.Close();
-            }
         }
-
 
     }
 }

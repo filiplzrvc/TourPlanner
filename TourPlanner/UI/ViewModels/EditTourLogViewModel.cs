@@ -39,7 +39,6 @@ namespace TourPlanner.UI.ViewModels
 
         private void UpdateLog()
         {
-            _logger.Info($"EditTourLog started for date {originalLog.Date}");
             try
             {
                 originalLog.Date = EditedLog.Date;
@@ -51,11 +50,13 @@ namespace TourPlanner.UI.ViewModels
 
                 logService.UpdateTourLog(EditedLog);
                 _dialogService.ShowMessage($"Tour log (Date: [{originalLog.Date}]) updated successfully!", "Success");
-            }catch(Exception ex)
+                _logger.Info($"Tour log (Date: [{originalLog.Date}]) updated successfully!");
+            }
+            catch (Exception ex)
             {
                 _logger.Error($"Error while updating tour log: {ex}");
             }
-
+            _dialogService.CloseCurrentWindow();
         }
     }
 }
