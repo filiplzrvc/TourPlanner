@@ -1,6 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Input;
 using TourPlanner.BL.Services;
+using TourPlanner.UI.Services;
 using TourPlanner.Utilities;
 
 namespace TourPlanner.UI.ViewModels
@@ -9,6 +10,8 @@ namespace TourPlanner.UI.ViewModels
     {
         private readonly TourLogService logService;
         private readonly TourLog originalLog;
+        private readonly IDialogService _dialogService;
+
         public TourLog EditedLog { get; }
 
         public ICommand ConfirmEditLogCommand { get; }
@@ -27,6 +30,7 @@ namespace TourPlanner.UI.ViewModels
                 TotalTime = selectedLog.TotalTime,
                 Rating = selectedLog.Rating
             };
+            _dialogService = new DialogService();
 
             ConfirmEditLogCommand = new RelayCommand(_ => UpdateLog());
         }
@@ -42,8 +46,8 @@ namespace TourPlanner.UI.ViewModels
 
             logService.UpdateTourLog(EditedLog);
 
-            MessageBox.Show("Tour log updated successfully!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
-            Application.Current.Windows[1]?.Close();
+            _dialogService.ShowMessage("Tour log updated successfully!", "Success"  );
+            
         }
     }
 }

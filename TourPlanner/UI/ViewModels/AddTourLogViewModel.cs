@@ -3,6 +3,7 @@ using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Input;
 using TourPlanner.BL.Services;
+using TourPlanner.UI.Services;
 using TourPlanner.Utilities;
 
 namespace TourPlanner.UI.ViewModels
@@ -18,14 +19,22 @@ namespace TourPlanner.UI.ViewModels
 
         private readonly TourLogService logService;
         private readonly ObservableCollection<TourLog> logs;
+        private readonly IDialogService _dialogService;
 
         public ICommand ConfirmAddLogCommand { get; }
 
-
+        private bool IsRunningInTest()
+        {
+            return AppDomain.CurrentDomain.GetAssemblies()
+                .Any(a => a.FullName.ToLowerInvariant().Contains("nunit")
+                       || a.FullName.ToLowerInvariant().Contains("xunit")
+                       || a.FullName.ToLowerInvariant().Contains("mstest"));
+        }
         public AddTourLogViewModel(TourLogService logService, ObservableCollection<TourLog> logs)
         {
             this.logService = logService;
             this.logs = logs;
+            _dialogService = new DialogService();
             ConfirmAddLogCommand = new RelayCommand(_ => AddLog(), _ => true);
         }
 
@@ -38,7 +47,7 @@ namespace TourPlanner.UI.ViewModels
         {
             if (logs == null)
             {
-                MessageBox.Show("No logs found for the selected tour!", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                _dialogService.ShowMessage("No logs found for the selected tour!", "Error");
                 return;
             }
 
@@ -53,8 +62,7 @@ namespace TourPlanner.UI.ViewModels
             };
             logs.Add(newLog);
 
-            MessageBox.Show("Tour log added successfully!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
-            Application.Current.Windows[1]?.Close();
+            _dialogService.ShowMessage("Tour log added successfully!", "Success");
         }
     }
 }

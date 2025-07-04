@@ -1,15 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TourPlanner.BL.Services;
+﻿using TourPlanner.BL.Services;
+using TourPlanner.UI.Services;
 using TourPlanner.UI.ViewModels;
 
 namespace TourPlanner.Test.ViewModels
 {
     public class EditTourViewModelTest
     {
+        [SetUp]
+        public void Setup()
+        {
+            DialogService.SuppressDialogs = true;
+        }
+
+        [TearDown]
+        public void TearDown()
+        {
+            DialogService.SuppressDialogs = false;
+        }
+
         [Test]
         public void UpdateTour_ValidInput_TourIsUpdated()
         {
