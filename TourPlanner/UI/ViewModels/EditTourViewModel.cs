@@ -4,6 +4,7 @@ using System.Windows.Input;
 using TourPlanner.BL.Services;
 using TourPlanner.UI.Services;
 using TourPlanner.Utilities;
+using TourPlanner.Utilities.Logging;
 
 namespace TourPlanner.UI.ViewModels
 {
@@ -11,6 +12,8 @@ namespace TourPlanner.UI.ViewModels
     {
         private readonly TourService tourService;
         private readonly IDialogService _dialogService;
+        private static readonly ILoggerWrapper _logger = LoggerFactory.GetLogger();
+
 
         public Tour SelectedTour { get; }
         public Tour EditedTour { get; }
@@ -64,28 +67,29 @@ namespace TourPlanner.UI.ViewModels
                 return;
             }
 
-            SelectedTour.Name = EditedTour.Name;
-            SelectedTour.Description = EditedTour.Description;
-            SelectedTour.From = EditedTour.From;
-            SelectedTour.To = EditedTour.To;
-            SelectedTour.TransportType = EditedTour.TransportType;
-            SelectedTour.Distance = EditedTour.Distance;
-            SelectedTour.EstimatedTime = EditedTour.EstimatedTime;
-            SelectedTour.Date = EditedTour.Date;
-            SelectedTour.Image = EditedTour.Image;
-
-            tourService.UpdateTour(SelectedTour);
-            _dialogService.ShowMessage("Tour updated successfully!", "Success");
-
-            CloseWindow();
-        }
-
-        protected virtual void CloseWindow()
-        {
-            if (Application.Current != null && Application.Current.Windows.Count > 1)
+            try
             {
-                Application.Current.Windows[1]?.Close();
+                SelectedTour.Name = EditedTour.Name;
+                SelectedTour.Description = EditedTour.Description;
+                SelectedTour.From = EditedTour.From;
+                SelectedTour.To = EditedTour.To;
+                SelectedTour.TransportType = EditedTour.TransportType;
+                SelectedTour.Distance = EditedTour.Distance;
+                SelectedTour.EstimatedTime = EditedTour.EstimatedTime;
+                SelectedTour.Date = EditedTour.Date;
+                SelectedTour.Image = EditedTour.Image;
+
+                tourService.UpdateTour(SelectedTour);
+                _dialogService.ShowMessage("Tour updated successfully!", "Success");
+                _logger.Info($"Tour [{SelectedTour.Name}] updated successfully!");
+
+            }catch(Exception ex)
+            {
+                _logger.Error($"Error while updating tour: {ex}");
             }
+            _dialogService.CloseCurrentWindow();
+
         }
+
     }
 }
