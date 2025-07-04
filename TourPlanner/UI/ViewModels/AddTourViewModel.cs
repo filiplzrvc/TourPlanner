@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using TourPlanner.BL.Services;
+using TourPlanner.UI.Services;
 using TourPlanner.Utilities;
 
 namespace TourPlanner.UI.ViewModels
@@ -23,6 +24,7 @@ namespace TourPlanner.UI.ViewModels
         public TransportType NewTourTransportType { get; set; } = TransportType.Walk;
         public string ImagePath { get; set; } = "../../Images/TestRoute.png";
         private readonly string imageFolder = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Images");
+        private readonly IDialogService _dialogService;
 
 
         public ObservableCollection<TransportType> TransportTypes { get; } = new ObservableCollection<TransportType>
@@ -82,6 +84,7 @@ namespace TourPlanner.UI.ViewModels
         {
             this.tourService = tourService;
             this.tours = tours;
+            _dialogService = new DialogService();
             ConfirmAddTourCommand = new RelayCommand(_ => AddTour()); //_ => CanAddTour() hinzufügen?
         }
 
@@ -97,7 +100,7 @@ namespace TourPlanner.UI.ViewModels
         {
             if(!CanAddTour())
             {
-                MessageBox.Show("Please fill out all fields!", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                _dialogService.ShowMessage("Please fill out all fields!", "Error");
                 return;
             }
             var newTour = new Tour
@@ -112,7 +115,7 @@ namespace TourPlanner.UI.ViewModels
             tourService.AddTour(newTour);
             tours.Add(newTour);
 
-            MessageBox.Show("Tour added successfully!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+            _dialogService.ShowMessage("Tour added successfully!", "Success");
             CloseWindow();
         }
 

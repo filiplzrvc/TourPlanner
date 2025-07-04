@@ -9,6 +9,7 @@ using System.Windows;
 using System.Windows.Media;
 using System.IO;
 using System.Linq;
+using TourPlanner.UI.Services;
 
 namespace TourPlanner.UI.ViewModels
 {
@@ -19,6 +20,7 @@ namespace TourPlanner.UI.ViewModels
         private Brush deleteTextColor = Brushes.Black;
         private readonly TourService tourService;
         private readonly TourLogService tourLogService;
+        private readonly IDialogService _dialogService;
 
         public ObservableCollection<Tour> Tours { get; } = new();
         public ObservableCollection<TourLog> TourLogs
@@ -67,6 +69,7 @@ namespace TourPlanner.UI.ViewModels
         {
             tourService = new TourService();
             tourLogService = new TourLogService();
+            _dialogService= new DialogService();
 
             foreach (var tour in tourService.GetTours())
             {
@@ -161,7 +164,7 @@ namespace TourPlanner.UI.ViewModels
                 string filePath = Path.Combine(desktop, fileName);
 
                 PdfReportGenerator.CreateSingleTourReport(SelectedTour, filePath);
-                MessageBox.Show("PDF report was created successfully!", "successfully", MessageBoxButton.OK, MessageBoxImage.Information);
+                _dialogService.ShowMessage("PDF report was created successfully!", "Success");
             }
         }, _ => SelectedTour != null);
 
@@ -175,7 +178,8 @@ namespace TourPlanner.UI.ViewModels
                 string filePath = Path.Combine(desktop, fileName);
 
                 PdfReportGenerator.CreateSummaryReport(Tours, filePath);
-                MessageBox.Show("Summary PDF report created successfully!", "successfully", MessageBoxButton.OK, MessageBoxImage.Information);
+                _dialogService.ShowMessage("Summary PDF report created successfully!", "Success");
+
             }
         }, _ => Tours.Count > 0);
 
@@ -191,7 +195,8 @@ namespace TourPlanner.UI.ViewModels
             if (saveDialog.ShowDialog() == true)
             {
                 TourDataSerializer.ExportTours(Tours, saveDialog.FileName);
-                MessageBox.Show("Tour data exported successfully.", "Export", MessageBoxButton.OK, MessageBoxImage.Information);
+                _dialogService.ShowMessage("Tour data exported successfully.", "Export");
+
             }
         }, _ => Tours.Count > 0);
 
@@ -209,7 +214,8 @@ namespace TourPlanner.UI.ViewModels
                 {
                     Tours.Add(tour);
                 }
-                MessageBox.Show("Tour data imported successfully.", "Import", MessageBoxButton.OK, MessageBoxImage.Information);
+                _dialogService.ShowMessage("Tour data imported successfully.", "Import");
+
             }
             ApplySearchFilter();
         });
@@ -290,7 +296,7 @@ namespace TourPlanner.UI.ViewModels
 
             if (SelectedTour == null)
             {
-                MessageBox.Show("Please select a tour first!", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                _dialogService.ShowMessage("Please select a tour first!", "Error");
                 return;
             }
             window.DataContext = new AddTourLogViewModel(tourLogService, SelectedTour.TourLogs);
@@ -303,7 +309,8 @@ namespace TourPlanner.UI.ViewModels
         {
             if (SelectedTourLog == null)
             {
-                MessageBox.Show("Please select a tour log first!", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                _dialogService.ShowMessage("Please select a tour log first!", "Error");
+
                 return;
             }
 

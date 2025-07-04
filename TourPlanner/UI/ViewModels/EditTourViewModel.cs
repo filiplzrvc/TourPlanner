@@ -2,6 +2,7 @@
 using System.Windows;
 using System.Windows.Input;
 using TourPlanner.BL.Services;
+using TourPlanner.UI.Services;
 using TourPlanner.Utilities;
 
 namespace TourPlanner.UI.ViewModels
@@ -9,6 +10,8 @@ namespace TourPlanner.UI.ViewModels
     public class EditTourViewModel
     {
         private readonly TourService tourService;
+        private readonly IDialogService _dialogService;
+
         public Tour SelectedTour { get; }
         public Tour EditedTour { get; }
 
@@ -40,6 +43,7 @@ namespace TourPlanner.UI.ViewModels
                 Date = selectedTour.Date,
                 Image = selectedTour.Image
             };  
+            _dialogService= new DialogService();
 
             ConfirmEditTourCommand = new RelayCommand(_ => UpdateTour()); // _ => CanUpdateTour() hinzufügen?
         }
@@ -56,7 +60,7 @@ namespace TourPlanner.UI.ViewModels
         {
             if (!CanUpdateTour())
             {
-                MessageBox.Show("Please fill out all fields!", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                _dialogService.ShowMessage("Please fill out all fields!", "Error");
                 return;
             }
 
@@ -71,7 +75,8 @@ namespace TourPlanner.UI.ViewModels
             SelectedTour.Image = EditedTour.Image;
 
             tourService.UpdateTour(SelectedTour);
-            MessageBox.Show("Tour updated successfully!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+            _dialogService.ShowMessage("Tour updated successfully!", "Success");
+
             CloseWindow();
         }
 
