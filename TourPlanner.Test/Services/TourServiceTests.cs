@@ -28,6 +28,7 @@ namespace TourPlanner.Test.Services
             Assert.That(result.Count(), Is.EqualTo(0));
         }
 
+
         [Test]
         public void AddTour_ValidTour_TourIsAdded()
         {

@@ -17,6 +17,13 @@ namespace TourPlanner.Test.ViewModels
             DialogService.SuppressDialogs = true;
         }
 
+        [TearDown]
+        public void TearDown()
+        {
+            DialogService.SuppressDialogs = false;
+        }
+
+
         [Test]
         public void AddTour_ValidInput_TourIsAddedToCollection()
         {

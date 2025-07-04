@@ -47,7 +47,7 @@ namespace TourPlanner.UI.ViewModels
             logService.UpdateTourLog(EditedLog);
 
             _dialogService.ShowMessage("Tour log updated successfully!", "Success"  );
-            Application.Current.Windows[1]?.Close();
+            
         }
     }
 }

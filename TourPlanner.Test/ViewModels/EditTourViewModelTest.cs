@@ -6,10 +6,18 @@ namespace TourPlanner.Test.ViewModels
 {
     public class EditTourViewModelTest
     {
+        [SetUp]
         public void Setup()
         {
             DialogService.SuppressDialogs = true;
         }
+
+        [TearDown]
+        public void TearDown()
+        {
+            DialogService.SuppressDialogs = false;
+        }
+
         [Test]
         public void UpdateTour_ValidInput_TourIsUpdated()
         {

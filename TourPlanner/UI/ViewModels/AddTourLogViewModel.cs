@@ -63,7 +63,6 @@ namespace TourPlanner.UI.ViewModels
             logs.Add(newLog);
 
             _dialogService.ShowMessage("Tour log added successfully!", "Success");
-            Application.Current.Windows[1]?.Close();
         }
     }
 }
