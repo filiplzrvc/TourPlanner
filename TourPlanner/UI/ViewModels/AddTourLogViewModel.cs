@@ -5,6 +5,7 @@ using System.Windows.Input;
 using TourPlanner.BL.Services;
 using TourPlanner.UI.Services;
 using TourPlanner.Utilities;
+using TourPlanner.Utilities.Logging;
 
 namespace TourPlanner.UI.ViewModels
 {
@@ -20,6 +21,7 @@ namespace TourPlanner.UI.ViewModels
         private readonly TourLogService logService;
         private readonly ObservableCollection<TourLog> logs;
         private readonly IDialogService _dialogService;
+        private static readonly ILoggerWrapper _logger = LoggerFactory.GetLogger();
 
         public ICommand ConfirmAddLogCommand { get; }
 
@@ -38,31 +40,38 @@ namespace TourPlanner.UI.ViewModels
             ConfirmAddLogCommand = new RelayCommand(_ => AddLog(), _ => true);
         }
 
-        //private bool CanAddLog()
-        //{
-        //    return !string.IsNullOrWhiteSpace(LogComment);
-        //}
-
         private void AddLog()
         {
+            _logger.Debug("AddTourLog command executed.");
             if (logs == null)
             {
                 _dialogService.ShowMessage("No logs found for the selected tour!", "Error");
                 return;
             }
 
-            var newLog = new TourLog
+            try
             {
-                Date = LogDate,
-                Comment = LogComment,
-                Difficulty = LogDifficulty,
-                TotalDistance = LogTotalDistance,
-                TotalTime = LogTotalTime,
-                Rating = LogRating
-            };
-            logs.Add(newLog);
+                var newLog = new TourLog
+                {
+                    Date = LogDate,
+                    Comment = LogComment,
+                    Difficulty = LogDifficulty,
+                    TotalDistance = LogTotalDistance,
+                    TotalTime = LogTotalTime,
+                    Rating = LogRating
+                };
+                logs.Add(newLog);
 
-            _dialogService.ShowMessage("Tour log added successfully!", "Success");
+                _logger.Info($"Tour log added successfully: {LogComment} on {LogDate}");
+                _logger.Debug($"Log details: {newLog}");
+                _dialogService.ShowMessage("Tour log added successfully!", "Success");
+
+            }catch(Exception ex)
+            {
+                _logger.Error($"Error while adding tour log: ${ex}.");
+            }
+
+
         }
     }
 }
