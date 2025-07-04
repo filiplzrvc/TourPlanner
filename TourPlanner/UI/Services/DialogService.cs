@@ -9,6 +9,7 @@ namespace TourPlanner.UI.Services
 {
     public class DialogService : IDialogService
     {
+        public static bool SuppressDialogs { get; set; } = false;
         private MessageBoxImage GetMessageBoxImageType(string type)
         {
             MessageBoxImage icon;
@@ -32,6 +33,7 @@ namespace TourPlanner.UI.Services
         }
         public void ShowMessage(string message, string type)
         {
+            if (SuppressDialogs) return;
             MessageBox.Show(message, type, MessageBoxButton.OK, this.GetMessageBoxImageType(type));
         }
 

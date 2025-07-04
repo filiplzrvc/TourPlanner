@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using TourPlanner.BL.Services;
+using TourPlanner.UI.Services;
 using TourPlanner.UI.ViewModels;
 
 namespace TourPlanner.Test.ViewModels
@@ -13,6 +14,7 @@ namespace TourPlanner.Test.ViewModels
         {
             _tourService = new TourService();
             _tours = new ObservableCollection<Tour>();
+            DialogService.SuppressDialogs = true;
         }
 
         [Test]
