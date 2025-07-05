@@ -11,5 +11,9 @@ namespace TourPlanner.UI.Services
     {
         void ShowMessage(string message, string title = "Info");
         void CloseCurrentWindow();
+        MessageBoxResult ConfirmDialog(string message, string title = "Confirm",
+                                       MessageBoxButton buttons = MessageBoxButton.YesNo,
+                                       MessageBoxImage icon = MessageBoxImage.Question);
+
     }
 }

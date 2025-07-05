@@ -21,7 +21,6 @@ namespace TourPlanner.UI.ViewModels
         public string NewTourTo { get; set; } = string.Empty;
         public TransportType NewTourTransportType { get; set; } = TransportType.Walk;
 
-        public string ImagePath { get; set; } = "../../Images/TestRoute.png";
         private readonly string imageFolder = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Images");
         private readonly IDialogService _dialogService;
 

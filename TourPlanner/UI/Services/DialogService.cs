@@ -45,5 +45,18 @@ namespace TourPlanner.UI.Services
             }
         }
 
+        public MessageBoxResult ConfirmDialog(
+            string message,
+            string title = "Confirm",
+            MessageBoxButton buttons = MessageBoxButton.YesNo,
+            MessageBoxImage icon = MessageBoxImage.Question)
+        {
+            if (SuppressDialogs) 
+                return MessageBoxResult.Yes;
+
+            return MessageBox.Show(message, title, buttons, icon);
+        }
+
+
     }
 }

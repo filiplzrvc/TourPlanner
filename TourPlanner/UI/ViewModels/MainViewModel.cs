@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using System;
+﻿using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
@@ -15,6 +14,7 @@ using System.Linq;
 using TourPlanner.UI.Services;
 using TourPlanner.Utilities.Logging;
 using log4net.Repository.Hierarchy;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace TourPlanner.UI.ViewModels
 {
@@ -224,38 +224,13 @@ namespace TourPlanner.UI.ViewModels
         }, _ => SelectedTour != null);
         
         
-        public ICommand ExportToursCommand => new RelayCommand(_ =>
-        {
-            try
-            {
-                var saveDialog = new Microsoft.Win32.SaveFileDialog
-                {
-                    Filter = "JSON-Dateien (*.json)|*.json",
-                    FileName = "tours_export.json",
-                    DefaultExt = ".json"
-                };
-
-                if (saveDialog.ShowDialog() == true)
-                {
-                    _logger.Info($"Exporting tours to {saveDialog.FileName}");
-                    TourDataSerializer.ExportTours(Tours, saveDialog.FileName);
-                    _dialogService.ShowMessage("Tour data exported successfully.", "Export");
-                    _logger.Info("Tours exported successfully.");
-
-                }
-            }catch(Exception ex)
-            {
-                _dialogService.ShowMessage($"Tour data failed to export {ex}", "Error");
-            }
-            
-        }, _ => Tours.Count > 0);
 
 
         public ICommand DeleteTourCommand => new RelayCommand(async _ =>
         {
             if (SelectedTour != null)
             {
-                if (_dialogService.ShowMessage($"Are you sure you want to delete '{SelectedTour.Name}'?", "Confirm Delete",
+                if (_dialogService.ConfirmDialog($"Are you sure you want to delete '{SelectedTour.Name}'?", "Confirm Delete",
                     MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
                 {
                     await tourService.DeleteTourAsync(SelectedTour);
@@ -263,7 +238,7 @@ namespace TourPlanner.UI.ViewModels
                     _logger.Info($"Tour deleted: {SelectedTour.Name}");
                     SelectedTour = null;
                 }
-
+            }
             ApplySearchFilter();
         }, _ => SelectedTour != null);
 
@@ -303,7 +278,7 @@ namespace TourPlanner.UI.ViewModels
 
             var editTourLogWindow = new EditTourLogWindow
             {
-              DataContext = editTourLogViewModel;
+              DataContext = editTourLogViewModel
             };
             editTourLogWindow.ShowDialog();
             ApplyTourLogSearchFilter(); 
@@ -311,24 +286,11 @@ namespace TourPlanner.UI.ViewModels
         }, _ => SelectedTourLog != null);
         
         
-        public ICommand OpenAddTourWindowCommand => new RelayCommand(_ =>
-        {
-            _logger.Info("Opening Add Tour Window.");
-            var window = new AddTourWindow
-            {
-                DataContext = editTourLogViewModel
-            };
-            window.ShowDialog();
-            ApplySearchFilter();
-            _logger.Info("Closed Add Tour Window and refreshed tours.");
-
-        });
-
         public ICommand DeleteTourLogCommand => new RelayCommand(async _ =>
         {
             if (SelectedTourLog != null)
             {
-                if (_dialogService.ShowMessage($"Are you sure you want to delete this log?", "Confirm Delete",
+                if (_dialogService.ConfirmDialog($"Are you sure you want to delete this log?", "Confirm Delete",
                     MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
                 {
                     await tourLogService.DeleteTourLogAsync(SelectedTourLog);
@@ -382,7 +344,7 @@ namespace TourPlanner.UI.ViewModels
             {
                 try
                 {
-                     _logger.Info($"Importing tours from {openDialog.FileName}");
+                    _logger.Info($"Importing tours from {openFileDialog.FileName}");
                     var importedTours = TourDataSerializer.ImportTours(openFileDialog.FileName);
 
                     foreach (var tour in importedTours)
@@ -394,7 +356,7 @@ namespace TourPlanner.UI.ViewModels
                             string absolutePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, tour.Image);
                             if (!File.Exists(absolutePath))
                             {
-                                tour.Image = "../../Images/TestRoute.png"; 
+                                tour.Image = "../../Images/TestRoute.png";
                             }
                             else
                             {
@@ -424,8 +386,7 @@ namespace TourPlanner.UI.ViewModels
                     _logger.Error($"General import failed: {ex.InnerException?.Message ?? ex.Message}");
                 }
             }
-        }
-     }
+        });
  
 
     public ICommand ExportToursCommand => new RelayCommand(_ =>
@@ -446,7 +407,7 @@ namespace TourPlanner.UI.ViewModels
 
         if (saveFileDialog.ShowDialog() == true)
         {
-             _logger.Info($"Exporting tours to {saveDialog.FileName}");
+             _logger.Info($"Exporting tours to {saveFileDialog.FileName}");
             TourDataSerializer.ExportTours(Tours, saveFileDialog.FileName);
             _dialogService.ShowMessage("Tour data exported successfully.", "Export");
             _logger.Info("Tours exported successfully.");
