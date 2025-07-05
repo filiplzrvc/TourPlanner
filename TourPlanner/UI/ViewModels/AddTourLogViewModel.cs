@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using TourPlanner.BL.Services;
@@ -20,46 +21,54 @@ namespace TourPlanner.UI.ViewModels
 
         private readonly TourLogService logService;
         private readonly ObservableCollection<TourLog> logs;
+        private readonly Tour parentTour;
         private readonly IDialogService _dialogService;
         private static readonly ILoggerWrapper _logger = LoggerFactory.GetLogger();
 
         public ICommand ConfirmAddLogCommand { get; }
 
-        public AddTourLogViewModel(TourLogService logService, ObservableCollection<TourLog> logs)
+        public AddTourLogViewModel(TourLogService logService, ObservableCollection<TourLog> logs, Tour parentTour)
         {
             this.logService = logService;
             this.logs = logs;
-            _dialogService = new DialogService();
-            ConfirmAddLogCommand = new RelayCommand(_ => AddLog(), _ => true);
+            this.parentTour = parentTour;
+            ConfirmAddLogCommand = new RelayCommand(async _ => await AddLogAsync(), _ => true);
         }
 
-        private void AddLog()
+        private async Task AddLogAsync()
         {
-            if (logs == null)
-            {
-                _dialogService.ShowMessage("No logs found for the selected tour!", "Error");
-                return;
-            }
-
-            try
-            {
+              if (logs == null)
+              {
+                  _dialogService.ShowMessage("No logs found for the selected tour!", "Error");
+                  return;
+              }
+              try
+              {
                 var newLog = new TourLog
                 {
-                    Date = LogDate,
+                    Date = LogDate.ToUniversalTime(),
                     Comment = LogComment,
                     Difficulty = LogDifficulty,
                     TotalDistance = LogTotalDistance,
                     TotalTime = LogTotalTime,
                     Rating = LogRating
                 };
-                logs.Add(newLog);
+                parentTour.TourLogs.Add(newLog); // in die Tour einfügen
 
+                // In der DB speichern
+                await logService.AddTourLogAsync(newLog);
                 _logger.Info($"Tour log added successfully: {LogComment} on {LogDate}");
                 _dialogService.ShowMessage("Tour log added successfully!", "Success");
-
-            }catch(Exception ex)
+                return;
+            }
+            catch (Exception ex)
             {
-                _logger.Error($"Error while adding tour log: ${ex}.");
+                string errorMsg = $"Error adding tour log: {ex.Message}";
+                if (ex.InnerException != null)
+                {
+                    errorMsg += $"\n\nInner Exception: {ex.InnerException.Message}";
+                }
+                _logger.Error(errorMsg);
             }
             _dialogService.CloseCurrentWindow();
         }

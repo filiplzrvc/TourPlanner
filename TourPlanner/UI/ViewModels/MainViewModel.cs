@@ -1,12 +1,15 @@
-﻿using System.Collections.ObjectModel;
+﻿using Microsoft.Extensions.DependencyInjection;
+using System;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Windows.Input;
-using TourPlanner.BL.Services;
-using TourPlanner;
-using TourPlanner.Utilities;
-using TourPlanner.UI.Views;
+using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Input;
 using System.Windows.Media;
+using TourPlanner.BL.Services;
+using TourPlanner.UI.Views;
+using TourPlanner.Utilities;
 using System.IO;
 using System.Linq;
 using TourPlanner.UI.Services;
@@ -20,6 +23,7 @@ namespace TourPlanner.UI.ViewModels
         private Tour? selectedTour;
         private TourLog? selectedTourLog;
         private Brush deleteTextColor = Brushes.Black;
+
         private readonly TourService tourService;
         private readonly TourLogService tourLogService;
         private readonly IDialogService _dialogService;
@@ -27,12 +31,11 @@ namespace TourPlanner.UI.ViewModels
         public ObservableCollection<Tour> Tours { get; } = new();
         public ObservableCollection<TourLog> TourLogs
         {
-            get => SelectedTour?.TourLogs ?? new ObservableCollection<TourLog> (); 
+            get => SelectedTour?.TourLogs ?? new ObservableCollection<TourLog>();
         }
 
         public ObservableCollection<Tour> FilteredTours { get; } = new();
         public ObservableCollection<TourLog> FilteredTourLogs { get; } = new();
-
 
         private static readonly ILoggerWrapper _logger = LoggerFactory.GetLogger();
 
@@ -66,26 +69,54 @@ namespace TourPlanner.UI.ViewModels
             }
         }
 
-        public MainViewModel()
+        public MainViewModel(TourService tourService, TourLogService tourLogService)
         {
-            tourService = new TourService();
-            tourLogService = new TourLogService();
+            this.tourService = tourService ?? throw new ArgumentNullException(nameof(tourService));
+            this.tourLogService = tourLogService ?? throw new ArgumentNullException(nameof(tourLogService));
+
             _dialogService= new DialogService();
 
             _logger.Info("MainViewModel initialized.");
 
-            foreach (var tour in tourService.GetTours())
+            _ = LoadToursAsync();
+        }
+
+        private async Task LoadToursAsync()
+        {
+            var tours = await tourService.GetToursAsync();
+            foreach (var tour in tours)
             {
                 Tours.Add(tour);
             }
-
-            foreach (var log in tourLogService.GetTourLogs())
-            {
-                TourLogs.Add(log);
-            }
             ApplySearchFilter();
-            ApplyTourLogSearchFilter();
+        }
 
+        public Tour? SelectedTour
+        {
+            get => selectedTour;
+            set
+            {
+                if (selectedTour != value)
+                {
+                    selectedTour = value;
+                    OnPropertyChanged(nameof(SelectedTour));
+                    OnPropertyChanged(nameof(TourLogs)); // aktualisiere die Logs
+                    ApplyTourLogSearchFilter();
+                }
+            }
+        }
+
+        public TourLog? SelectedTourLog
+        {
+            get => selectedTourLog;
+            set
+            {
+                if (selectedTourLog != value)
+                {
+                    selectedTourLog = value;
+                    OnPropertyChanged(nameof(SelectedTourLog));
+                }
+            }
         }
 
         private bool MatchesTourLogSearch(TourLog log, string lowerSearch)
@@ -103,9 +134,9 @@ namespace TourPlanner.UI.ViewModels
             if (!tour.TourLogs.Any())
                 return false;
 
-            double avgTime = tour.TourLogs.Any() ? tour.TourLogs.Average(l => l.TotalTime) : 0.0;
-            double avgDist = tour.TourLogs.Any() ? tour.TourLogs.Average(l => l.TotalDistance) : 0.0;
-            double avgRating = tour.TourLogs.Any() ? tour.TourLogs.Average(l => l.Rating) : 0.0;
+            double avgTime = tour.TourLogs.Average(l => l.TotalTime);
+            double avgDist = tour.TourLogs.Average(l => l.TotalDistance);
+            double avgRating = tour.TourLogs.Average(l => l.Rating);
 
             return avgTime.ToString().ToLower().Contains(lowerSearch) ||
                    avgDist.ToString().ToLower().Contains(lowerSearch) ||
@@ -158,38 +189,41 @@ namespace TourPlanner.UI.ViewModels
             }
         }
 
-        public ICommand GenerateReportCommand => new RelayCommand(_ =>
+
+        public ICommand OpenAddTourWindowCommand => new RelayCommand(_ =>
         {
+            _logger.Info("Opening Add Tour Window.");
+            
+            var tourService = App.AppHost.Services.GetRequiredService<TourService>();
+            var addTourViewModel = new AddTourViewModel(tourService, Tours);
+            var addTourWindow = new AddTourWindow(addTourViewModel); 
+            
+            ApplySearchFilter();
+            _logger.Info("Closed Add Tour Window and refreshed tours.");
+        });
+
+
+ 
+        public ICommand OpenEditTourWindowCommand => new RelayCommand(_ =>
+        {
+            _logger.Info("Opening Edit Tour Window.");
             if (SelectedTour != null)
             {
-                string fileName = $"{SelectedTour.Name}_Report.pdf".Replace(" ", "_");
-                string desktop = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
-                string filePath = Path.Combine(desktop, fileName);
+                var tourService = App.AppHost.Services.GetRequiredService<TourService>();
+                var editTourViewModel = new EditTourViewModel(tourService, SelectedTour);
 
-                _logger.Info($"Generating PDF report for tour: {SelectedTour.Name} at {filePath}");
-                PdfReportGenerator.CreateSingleTourReport(SelectedTour, filePath);
-                _dialogService.ShowMessage("PDF report was created successfully!", "Success");
-                _logger.Info("PDF report generated successfully.");
+                var editTourWindow = new EditTourWindow
+                {
+                    DataContext = editTourViewModel
+                };
+
+                editTourWindow.ShowDialog();
             }
+            ApplySearchFilter();
+            _logger.Info("Closed Edit Tour Window and refreshed tours.");
         }, _ => SelectedTour != null);
-
-
-        public ICommand GenerateSummaryReportCommand => new RelayCommand(_ =>
-        {
-            if (Tours.Count > 0)
-            {
-                string fileName = $"Tour_Summary_Report.pdf";
-                string desktop = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
-                string filePath = Path.Combine(desktop, fileName);
-
-                _logger.Info($"Generating PDF summary for tour: {SelectedTour.Name} at {filePath}");
-                PdfReportGenerator.CreateSummaryReport(Tours, filePath);
-                _dialogService.ShowMessage("Summary PDF report created successfully!", "Success");
-                _logger.Info("PDF summary generated successfully.");
-
-            }
-        }, _ => Tours.Count > 0);
-
+        
+        
         public ICommand ExportToursCommand => new RelayCommand(_ =>
         {
             try
@@ -216,93 +250,214 @@ namespace TourPlanner.UI.ViewModels
             
         }, _ => Tours.Count > 0);
 
-        public ICommand ImportToursCommand => new RelayCommand(_ =>
+
+        public ICommand DeleteTourCommand => new RelayCommand(async _ =>
         {
-            var openDialog = new Microsoft.Win32.OpenFileDialog
+            if (SelectedTour != null)
             {
-                Filter = "JSON-Dateien (*.json)|*.json"
+                if (_dialogService.ShowMessage($"Are you sure you want to delete '{SelectedTour.Name}'?", "Confirm Delete",
+                    MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
+                {
+                    await tourService.DeleteTourAsync(SelectedTour);
+                    Tours.Remove(SelectedTour);
+                    _logger.Info($"Tour deleted: {SelectedTour.Name}");
+                    SelectedTour = null;
+                }
+
+            ApplySearchFilter();
+        }, _ => SelectedTour != null);
+
+        public ICommand OpenAddTourLogWindowCommand => new RelayCommand(_ =>
+        {
+             _logger.Info($"Opening AddTourLogWindow for tour: {SelectedTour?.Name}");
+            if (SelectedTour == null)
+            {
+                _dialogService.ShowMessage("Please select a tour first.", "Error");
+                return;
+            }
+
+            var tourLogService = App.AppHost.Services.GetRequiredService<TourLogService>();
+            var addTourLogViewModel = new AddTourLogViewModel(tourLogService, SelectedTour.TourLogs, SelectedTour);
+
+            var addTourLogWindow = new AddTourLogWindow
+            {
+                DataContext = addTourLogViewModel
             };
 
-            if (openDialog.ShowDialog() == true)
-            {
-                _logger.Info($"Importing tours from {openDialog.FileName}");
-                var importedTours = TourDataSerializer.ImportTours(openDialog.FileName);
-                foreach (var tour in importedTours)
-                {
-                    Tours.Add(tour);
-                }
-                _dialogService.ShowMessage("Tour data imported successfully.", "Import");
-                _logger.Info($"Imported {importedTours.Count} tours.");
-            }
-            ApplySearchFilter();
+            addTourLogWindow.ShowDialog();
+            ApplyTourLogSearchFilter(); 
+             _logger.Info($"Closed AddTourLogWindow and refreshed tour logs.");
         });
 
-        public Tour? SelectedTour
+        public ICommand OpenEditTourLogWindowCommand => new RelayCommand(_ =>
         {
-            get => selectedTour;
-            set
+            _logger.Info($"Opening EditTourLogWindow for tour: {SelectedTour?.Name}");
+            if (SelectedTourLog == null)
             {
-                if (selectedTour != value)
-                {
-                    selectedTour = value;
-                    OnPropertyChanged(nameof(SelectedTour));
-                    ApplyTourLogSearchFilter();
-                }
+                _dialogService.ShowMessage("Please select a tour log to edit.", "Error");
+                return;
             }
-        }
 
-        public TourLog? SelectedTourLog
-        {
-            get => selectedTourLog;
-            set
+            var tourLogService = App.AppHost.Services.GetRequiredService<TourLogService>();
+            var editTourLogViewModel = new EditTourLogViewModel(tourLogService, SelectedTourLog);
+
+            var editTourLogWindow = new EditTourLogWindow
             {
-                if (selectedTourLog != value)
-                {
-                    selectedTourLog = value;
-                    OnPropertyChanged(nameof(SelectedTourLog));
-                }
-            }
-        }
+              DataContext = editTourLogViewModel;
+            };
+            editTourLogWindow.ShowDialog();
+            ApplyTourLogSearchFilter(); 
+            _logger.Info($"Closed EditTourLogWindow and refreshed tour logs.");
+        }, _ => SelectedTourLog != null);
+        
+        
         public ICommand OpenAddTourWindowCommand => new RelayCommand(_ =>
         {
             _logger.Info("Opening Add Tour Window.");
             var window = new AddTourWindow
             {
-                DataContext = new AddTourViewModel(tourService, Tours)
+                DataContext = editTourLogViewModel
             };
             window.ShowDialog();
             ApplySearchFilter();
             _logger.Info("Closed Add Tour Window and refreshed tours.");
 
         });
-      
-        public ICommand OpenEditTourWindowCommand => new RelayCommand(_ =>
+
+        public ICommand DeleteTourLogCommand => new RelayCommand(async _ =>
         {
-            _logger.Info("Opening Edit Tour Window.");
-            if (SelectedTour != null)
+            if (SelectedTourLog != null)
             {
-                var window = new EditTourWindow
+                if (_dialogService.ShowMessage($"Are you sure you want to delete this log?", "Confirm Delete",
+                    MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
                 {
-                    DataContext = new EditTourViewModel(tourService, SelectedTour)
-                };
-                window.ShowDialog();
+                    await tourLogService.DeleteTourLogAsync(SelectedTourLog);
+                    SelectedTour.TourLogs.Remove(SelectedTourLog);
+                    _logger.Info($"Tour log Date([{SelectedTourLog.Date}]) deleted successfully.");
+                    SelectedTourLog = null;
+                }
             }
-            ApplySearchFilter();
-            _logger.Info("Closed Edit Tour Window and refreshed tours.");
-        }, _ => SelectedTour != null);
+            ApplyTourLogSearchFilter();
+        }, _ => SelectedTourLog != null);
 
-
-        public ICommand DeleteTourCommand => new RelayCommand(_ =>
+        public ICommand GenerateReportCommand => new RelayCommand(_ =>
         {
             if (SelectedTour != null)
             {
-                tourService.DeleteTour(SelectedTour);
-                Tours.Remove(SelectedTour);
-                _logger.Info($"Tour deleted: {SelectedTour.Name}");
-                SelectedTour = null;
+                string fileName = $"{SelectedTour.Name}_Report.pdf".Replace(" ", "_");
+                string desktop = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+                string filePath = System.IO.Path.Combine(desktop, fileName);
+
+                _logger.Info($"Generating PDF report for tour: {SelectedTour.Name} at {filePath}");
+                PdfReportGenerator.CreateSingleTourReport(SelectedTour, filePath);
+                _dialogService.ShowMessage("PDF report was created successfully!", "Success");
+                _logger.Info("PDF report generated successfully.");
             }
-            ApplySearchFilter();
         }, _ => SelectedTour != null);
+
+        public ICommand GenerateSummaryReportCommand => new RelayCommand(_ =>
+        {
+            if (Tours.Count > 0)
+            {
+                string fileName = $"Tour_Summary_Report.pdf";
+                string desktop = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+                string filePath = System.IO.Path.Combine(desktop, fileName);
+
+                _logger.Info($"Generating PDF summary for tour: {SelectedTour.Name} at {filePath}");
+                PdfReportGenerator.CreateSummaryReport(Tours, filePath);
+                _dialogService.ShowMessage("Summary PDF report created successfully!", "Success");
+                _logger.Info("PDF summary generated successfully.");
+            }
+        }, _ => Tours.Count > 0);
+
+        public ICommand ImportToursCommand => new RelayCommand(async _ =>
+        {
+            var openFileDialog = new Microsoft.Win32.OpenFileDialog
+            {
+                Filter = "JSON Files (*.json)|*.json",
+                Title = "Import Tours"
+            };
+
+            if (openFileDialog.ShowDialog() == true)
+            {
+                try
+                {
+                     _logger.Info($"Importing tours from {openDialog.FileName}");
+                    var importedTours = TourDataSerializer.ImportTours(openFileDialog.FileName);
+
+                    foreach (var tour in importedTours)
+                    {
+                        tour.Id = 0;
+
+                        if (!string.IsNullOrEmpty(tour.Image))
+                        {
+                            string absolutePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, tour.Image);
+                            if (!File.Exists(absolutePath))
+                            {
+                                tour.Image = "../../Images/TestRoute.png"; 
+                            }
+                            else
+                            {
+                                tour.Image = absolutePath;
+                            }
+                        }
+
+                        foreach (var log in tour.TourLogs)
+                        {
+                            log.Id = 0;
+                            log.TourId = 0;
+                            log.Tour = tour;
+                        }
+
+                        await tourService.AddTourAsync(tour);
+                        Tours.Add(tour);
+                    }
+
+                    ApplySearchFilter();
+                    _dialogService.ShowMessage("Tour data imported successfully.", "Import");
+                    _logger.Info($"Imported {importedTours.Count} tours.");
+                }
+                catch (Exception ex)
+                {
+                    _dialogService.ShowMessage($"General import failed: {ex.InnerException?.Message ?? ex.Message}",
+                                    "Error");
+                    _logger.Error($"General import failed: {ex.InnerException?.Message ?? ex.Message}");
+                }
+            }
+        }
+     }
+ 
+
+    public ICommand ExportToursCommand => new RelayCommand(_ =>
+    {
+      try
+      {
+        var saveFileDialog = new Microsoft.Win32.SaveFileDialog
+        {
+            Filter = "JSON Files (*.json)|*.json",
+            Title = "Export Tours",
+            FileName = "ToursExport.json"
+        };
+        if (SelectedTourLog == null)
+        {
+            _dialogService.ShowMessage("Please select a tour log first!", "Error");
+            return;
+        }
+
+        if (saveFileDialog.ShowDialog() == true)
+        {
+             _logger.Info($"Exporting tours to {saveDialog.FileName}");
+            TourDataSerializer.ExportTours(Tours, saveFileDialog.FileName);
+            _dialogService.ShowMessage("Tour data exported successfully.", "Export");
+            _logger.Info("Tours exported successfully.");
+        }
+       }catch(Exception ex)
+        {
+            _dialogService.ShowMessage($"Tour data failed to export {ex}", "Error");
+            _logger.Error($"Tour data failed to export {ex}");
+        }
+    }, _ => Tours.Count > 0);
+
 
         public Brush DeleteTextColor
         {
@@ -313,59 +468,9 @@ namespace TourPlanner.UI.ViewModels
                 OnPropertyChanged(nameof(DeleteTextColor));
             }
         }
-        public ICommand OpenAddTourLogWindowCommand => new RelayCommand(_ =>
-        {
-
-            _logger.Info($"Opening AddTourLogWindow for tour: {SelectedTour?.Name}");
-            var window = new AddTourLogWindow();
-
-            if (SelectedTour == null)
-            {
-                _dialogService.ShowMessage("Please select a tour first!", "Error");
-                return;
-            }
-            window.DataContext = new AddTourLogViewModel(tourLogService, SelectedTour.TourLogs);
-            window.ShowDialog();
-            DeleteTextColor = Brushes.White;
-            ApplyTourLogSearchFilter();
-            _logger.Info($"Closed AddTourLogWindow and refreshed tour logs.");
-        });
-
-        public ICommand OpenEditTourLogWindowCommand => new RelayCommand(_ =>
-        {
-            _logger.Info($"Opening EditTourLogWindow for tour: {SelectedTour?.Name}");
-            if (SelectedTourLog == null)
-            {
-                _dialogService.ShowMessage("Please select a tour log first!", "Error");
-                return;
-            }
-
-            var window = new EditTourLogWindow
-            {
-                DataContext = new EditTourLogViewModel(tourLogService, SelectedTourLog)
-            };
-            window.ShowDialog();
-            ApplyTourLogSearchFilter();
-            _logger.Info($"Closed EditTourLogWindow and refreshed tour logs.");
-
-        }, _ => SelectedTourLog != null);
-
-        public ICommand DeleteTourLogCommand => new RelayCommand(_ =>
-        {
-            if (SelectedTourLog != null)
-            {
-                tourLogService.DeleteTourLog(SelectedTourLog);
-                TourLogs.Remove(SelectedTourLog);
-                _logger.Info($"Tour log Date([{SelectedTourLog.Date}]) deleted successfully.");
-                SelectedTourLog = null;
-            }
-            ApplyTourLogSearchFilter();
-        }, _ => SelectedTourLog != null);
-
-
 
         public event PropertyChangedEventHandler? PropertyChanged;
-        private void OnPropertyChanged(string propertyName) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-
+        private void OnPropertyChanged(string propertyName) =>
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }

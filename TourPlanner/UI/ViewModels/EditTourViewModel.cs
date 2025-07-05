@@ -1,4 +1,6 @@
-﻿using System.Collections.ObjectModel;
+﻿using System;
+using System.Collections.ObjectModel;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using TourPlanner.BL.Services;
@@ -31,11 +33,13 @@ namespace TourPlanner.UI.ViewModels
 
         public EditTourViewModel(TourService tourService, Tour selectedTour)
         {
-            this.tourService = tourService;
-            SelectedTour = selectedTour;
+            this.tourService = tourService ?? throw new ArgumentNullException(nameof(tourService));
+            SelectedTour = selectedTour ?? throw new ArgumentNullException(nameof(selectedTour));
 
+            // Kopie erstellen, damit Änderungen erst nach Bestätigung übernommen werden
             EditedTour = new Tour
             {
+                Id = selectedTour.Id, // wichtig: Id mitgeben, sonst weiß EF nicht welches Entity
                 Name = selectedTour.Name,
                 Description = selectedTour.Description,
                 From = selectedTour.From,
@@ -48,7 +52,7 @@ namespace TourPlanner.UI.ViewModels
             };  
             _dialogService= new DialogService();
 
-            ConfirmEditTourCommand = new RelayCommand(_ => UpdateTour()); // _ => CanUpdateTour() hinzufügen?
+            ConfirmEditTourCommand = new RelayCommand(async _ => await UpdateTourAsync());
         }
 
         private bool CanUpdateTour()
@@ -59,7 +63,7 @@ namespace TourPlanner.UI.ViewModels
                    !string.IsNullOrWhiteSpace(EditedTour.To);
         }
 
-        private void UpdateTour()
+        private async Task UpdateTourAsync()
         {
             if (!CanUpdateTour())
             {
@@ -69,6 +73,7 @@ namespace TourPlanner.UI.ViewModels
 
             try
             {
+                // Änderungen von EditedTour ins Original übernehmen
                 SelectedTour.Name = EditedTour.Name;
                 SelectedTour.Description = EditedTour.Description;
                 SelectedTour.From = EditedTour.From;
@@ -78,18 +83,19 @@ namespace TourPlanner.UI.ViewModels
                 SelectedTour.EstimatedTime = EditedTour.EstimatedTime;
                 SelectedTour.Date = EditedTour.Date;
                 SelectedTour.Image = EditedTour.Image;
+              
+                await tourService.UpdateTourAsync(SelectedTour);
 
-                tourService.UpdateTour(SelectedTour);
                 _dialogService.ShowMessage("Tour updated successfully!", "Success");
                 _logger.Info($"Tour [{SelectedTour.Name}] updated successfully!");
-
-            }catch(Exception ex)
+            }
+            catch (Exception ex)
             {
-                _logger.Error($"Error while updating tour: {ex}");
+                _dialogService.ShowMessage($"Failed to update tour: {ex.Message}", "Error");
+              _logger.Error($"Error while updating tour: {ex}");
             }
             _dialogService.CloseCurrentWindow();
-
+          
         }
-
     }
 }
