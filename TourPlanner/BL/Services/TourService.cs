@@ -1,30 +1,39 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
+using TourPlanner.DAL;
 
 namespace TourPlanner.BL.Services
 {
     public class TourService
     {
-        private readonly List<Tour> tours = new();
-        public IEnumerable<Tour> GetTours() => tours;
-        public void AddTour(Tour tour) => tours.Add(tour);
-        
-        public void UpdateTour(Tour updatedTour)
+        private readonly IRepository<Tour> repository;
+
+        public TourService(IRepository<Tour> repository)
         {
-            var existingTour = tours.FirstOrDefault(t => t.Name == updatedTour.Name);
-            if (existingTour != null)
-            {
-                existingTour.Name = updatedTour.Name;
-                existingTour.Description = updatedTour.Description;
-                existingTour.From = updatedTour.From;
-                existingTour.To = updatedTour.To;
-                existingTour.TransportType = updatedTour.TransportType;
-                existingTour.Distance = updatedTour.Distance;
-                existingTour.EstimatedTime = updatedTour.EstimatedTime;
-            }
+            this.repository = repository;
         }
 
+        public async Task<IEnumerable<Tour>> GetToursAsync()
+        {
+            return await repository.GetAllAsync();
+        }
 
-        public void DeleteTour(Tour tour) => tours.Remove(tour);
+        public async Task AddTourAsync(Tour tour)
+        {
+            await repository.AddAsync(tour);
+            await repository.SaveAsync();
+        }
+
+        public async Task UpdateTourAsync(Tour tour)
+        {
+            repository.Update(tour);
+            await repository.SaveAsync();
+        }
+
+        public async Task DeleteTourAsync(Tour tour)
+        {
+            repository.Delete(tour);
+            await repository.SaveAsync();
+        }
     }
 }

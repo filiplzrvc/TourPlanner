@@ -5,12 +5,18 @@ namespace TourPlanner
 {
     public class TourLog : INotifyPropertyChanged
     {
-        private DateTime date;
+        public int Id { get; set; }  // Primärschlüssel
+
+        private DateTime date = DateTime.UtcNow;
         private string comment = string.Empty;
         private int difficulty;
         private double totalDistance;
         private double totalTime;
         private int rating;
+
+        // 🆕 FK + Navigation
+        public int TourId { get; set; }
+        public Tour Tour { get; set; }
 
         public DateTime Date { get => date; set => SetProperty(ref date, value); }
         public string Comment { get => comment; set => SetProperty(ref comment, value); }

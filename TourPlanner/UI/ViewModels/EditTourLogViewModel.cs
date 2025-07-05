@@ -1,4 +1,6 @@
-﻿using System.Windows;
+﻿using System;
+using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Input;
 using TourPlanner.BL.Services;
 using TourPlanner.Utilities;
@@ -15,11 +17,13 @@ namespace TourPlanner.UI.ViewModels
 
         public EditTourLogViewModel(TourLogService logService, TourLog selectedLog)
         {
-            this.logService = logService;
-            originalLog = selectedLog;
+            this.logService = logService ?? throw new ArgumentNullException(nameof(logService));
+            originalLog = selectedLog ?? throw new ArgumentNullException(nameof(selectedLog));
 
+            // Kopie erstellen, damit Änderungen erst nach Bestätigung übernommen werden
             EditedLog = new TourLog
             {
+                Id = selectedLog.Id, // wichtig: Id mitgeben, damit EF weiß welches Entity
                 Date = selectedLog.Date,
                 Comment = selectedLog.Comment,
                 Difficulty = selectedLog.Difficulty,
@@ -28,11 +32,12 @@ namespace TourPlanner.UI.ViewModels
                 Rating = selectedLog.Rating
             };
 
-            ConfirmEditLogCommand = new RelayCommand(_ => UpdateLog());
+            ConfirmEditLogCommand = new RelayCommand(async _ => await UpdateLogAsync());
         }
 
-        private void UpdateLog()
+        private async Task UpdateLogAsync()
         {
+            // Werte aus der bearbeiteten Kopie zurück in das Original übernehmen
             originalLog.Date = EditedLog.Date;
             originalLog.Comment = EditedLog.Comment;
             originalLog.Difficulty = EditedLog.Difficulty;
@@ -40,10 +45,25 @@ namespace TourPlanner.UI.ViewModels
             originalLog.TotalTime = EditedLog.TotalTime;
             originalLog.Rating = EditedLog.Rating;
 
-            logService.UpdateTourLog(EditedLog);
+            try
+            {
+                await logService.UpdateTourLogAsync(originalLog);
 
-            MessageBox.Show("Tour log updated successfully!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
-            Application.Current.Windows[1]?.Close();
+                MessageBox.Show("Tour log updated successfully!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                CloseWindow();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Failed to update tour log: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void CloseWindow()
+        {
+            if (Application.Current.Windows.Count > 1)
+            {
+                Application.Current.Windows[1]?.Close();
+            }
         }
     }
 }

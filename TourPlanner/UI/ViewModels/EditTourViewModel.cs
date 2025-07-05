@@ -1,4 +1,6 @@
-﻿using System.Collections.ObjectModel;
+﻿using System;
+using System.Collections.ObjectModel;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using TourPlanner.BL.Services;
@@ -25,11 +27,13 @@ namespace TourPlanner.UI.ViewModels
 
         public EditTourViewModel(TourService tourService, Tour selectedTour)
         {
-            this.tourService = tourService;
-            SelectedTour = selectedTour;
+            this.tourService = tourService ?? throw new ArgumentNullException(nameof(tourService));
+            SelectedTour = selectedTour ?? throw new ArgumentNullException(nameof(selectedTour));
 
+            // Kopie erstellen, damit Änderungen erst nach Bestätigung übernommen werden
             EditedTour = new Tour
             {
+                Id = selectedTour.Id, // wichtig: Id mitgeben, sonst weiß EF nicht welches Entity
                 Name = selectedTour.Name,
                 Description = selectedTour.Description,
                 From = selectedTour.From,
@@ -39,9 +43,9 @@ namespace TourPlanner.UI.ViewModels
                 EstimatedTime = selectedTour.EstimatedTime,
                 Date = selectedTour.Date,
                 Image = selectedTour.Image
-            };  
+            };
 
-            ConfirmEditTourCommand = new RelayCommand(_ => UpdateTour()); // _ => CanUpdateTour() hinzufügen?
+            ConfirmEditTourCommand = new RelayCommand(async _ => await UpdateTourAsync());
         }
 
         private bool CanUpdateTour()
@@ -52,7 +56,7 @@ namespace TourPlanner.UI.ViewModels
                    !string.IsNullOrWhiteSpace(EditedTour.To);
         }
 
-        private void UpdateTour()
+        private async Task UpdateTourAsync()
         {
             if (!CanUpdateTour())
             {
@@ -60,6 +64,7 @@ namespace TourPlanner.UI.ViewModels
                 return;
             }
 
+            // Änderungen von EditedTour ins Original übernehmen
             SelectedTour.Name = EditedTour.Name;
             SelectedTour.Description = EditedTour.Description;
             SelectedTour.From = EditedTour.From;
@@ -70,14 +75,22 @@ namespace TourPlanner.UI.ViewModels
             SelectedTour.Date = EditedTour.Date;
             SelectedTour.Image = EditedTour.Image;
 
-            tourService.UpdateTour(SelectedTour);
-            MessageBox.Show("Tour updated successfully!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
-            CloseWindow();
+            try
+            {
+                await tourService.UpdateTourAsync(SelectedTour);
+
+                MessageBox.Show("Tour updated successfully!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                CloseWindow();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Failed to update tour: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         protected virtual void CloseWindow()
         {
-            if (Application.Current != null && Application.Current.Windows.Count > 1)
+            if (Application.Current.Windows.Count > 1)
             {
                 Application.Current.Windows[1]?.Close();
             }

@@ -1,33 +1,39 @@
-﻿using System;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using System.Collections.Generic;
+using TourPlanner.DAL;
 
 namespace TourPlanner.BL.Services
 {
     public class TourLogService
     {
-        private readonly List<TourLog> tourLogs = new();
+        private readonly IRepository<TourLog> repository;
 
-        public IEnumerable<TourLog> GetTourLogs() => tourLogs;
-
-        public void AddTourLog(TourLog log) => tourLogs.Add(log);
-
-        public void UpdateTourLog(TourLog updatedLog)
+        public TourLogService(IRepository<TourLog> repository)
         {
-            var existingLog = tourLogs.Find(l => l.Date == updatedLog.Date);
-            if (existingLog != null)
-            {
-                existingLog.Comment = updatedLog.Comment;
-                existingLog.Difficulty = updatedLog.Difficulty;
-                existingLog.TotalDistance = updatedLog.TotalDistance;
-                existingLog.TotalTime = updatedLog.TotalTime;
-                existingLog.Rating = updatedLog.Rating;
-            }
+            this.repository = repository;
         }
 
-        public void DeleteTourLog(TourLog log) => tourLogs.Remove(log);
+        public async Task<IEnumerable<TourLog>> GetTourLogsAsync()
+        {
+            return await repository.GetAllAsync();
+        }
+
+        public async Task AddTourLogAsync(TourLog log)
+        {
+            await repository.AddAsync(log);
+            await repository.SaveAsync();
+        }
+
+        public async Task UpdateTourLogAsync(TourLog log)
+        {
+            repository.Update(log);
+            await repository.SaveAsync();
+        }
+
+        public async Task DeleteTourLogAsync(TourLog log)
+        {
+            repository.Delete(log);
+            await repository.SaveAsync();
+        }
     }
 }
-

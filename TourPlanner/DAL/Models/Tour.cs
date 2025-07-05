@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using System.Windows.Media.Imaging;
 
@@ -18,6 +19,7 @@ namespace TourPlanner
     }
     public class Tour : INotifyPropertyChanged
     {
+        public int Id { get; set; }  // Primärschlüssel
         public ObservableCollection<TourLog> TourLogs { get; set; } = new ObservableCollection<TourLog>();
 
         
@@ -28,7 +30,7 @@ namespace TourPlanner
         private TransportType transportType;
         private double distance;
         private double estimatedTime;
-        private DateTime date = DateTime.Now;
+        private DateTime date = DateTime.UtcNow;
         private string image = "../../Images/TestRoute.png";
 
         public string Name { get => name; set => SetProperty(ref name, value); }
@@ -39,21 +41,29 @@ namespace TourPlanner
         public double Distance { get => distance; set => SetProperty(ref distance, value); }
         public double EstimatedTime { get => estimatedTime; set => SetProperty(ref estimatedTime, value); }
         public DateTime Date { get => date; set => SetProperty(ref date, value); }
-        public string Image { get => image; set => SetProperty(ref image, value); }
+        public string? Image { get => image; set => SetProperty(ref image, value); }
 
+
+        [JsonIgnore]
         public BitmapImage TourImage
         {
             get
             {
                 try
                 {
-                    if (!string.IsNullOrEmpty(Image) && File.Exists(Image))
+                    if (!string.IsNullOrEmpty(Image))
                     {
-                        return new BitmapImage(new Uri(Image, UriKind.Absolute));
+                        string absolutePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, Image);
+
+                        if (File.Exists(absolutePath))
+                        {
+                            return new BitmapImage(new Uri(absolutePath, UriKind.Absolute));
+                        }
                     }
                 }
                 catch { }
-                // Fallback
+
+                // 🛡️ Fallback-Bild
                 return new BitmapImage(new Uri("pack://application:,,,/Images/TestRoute.png"));
             }
         }
