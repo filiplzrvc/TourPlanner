@@ -4,7 +4,9 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using TourPlanner.BL.Services;
+using TourPlanner.UI.Services;
 using TourPlanner.Utilities;
+using TourPlanner.Utilities.Logging;
 
 namespace TourPlanner.UI.ViewModels
 {
@@ -20,6 +22,8 @@ namespace TourPlanner.UI.ViewModels
         private readonly TourLogService logService;
         private readonly ObservableCollection<TourLog> logs;
         private readonly Tour parentTour;
+        private readonly IDialogService _dialogService;
+        private static readonly ILoggerWrapper _logger = LoggerFactory.GetLogger();
 
         public ICommand ConfirmAddLogCommand { get; }
 
@@ -33,14 +37,13 @@ namespace TourPlanner.UI.ViewModels
 
         private async Task AddLogAsync()
         {
-            try
-            {
-                if (logs == null)
-                {
-                    MessageBox.Show("No logs found for the selected tour!", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                    return;
-                }
-
+              if (logs == null)
+              {
+                  _dialogService.ShowMessage("No logs found for the selected tour!", "Error");
+                  return;
+              }
+              try
+              {
                 var newLog = new TourLog
                 {
                     Date = LogDate.ToUniversalTime(),
@@ -54,10 +57,9 @@ namespace TourPlanner.UI.ViewModels
 
                 // In der DB speichern
                 await logService.AddTourLogAsync(newLog);
-
-
-                MessageBox.Show("Tour log added successfully!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
-                CloseWindow();
+                _logger.Info($"Tour log added successfully: {LogComment} on {LogDate}");
+                _dialogService.ShowMessage("Tour log added successfully!", "Success");
+                return;
             }
             catch (Exception ex)
             {
@@ -66,16 +68,9 @@ namespace TourPlanner.UI.ViewModels
                 {
                     errorMsg += $"\n\nInner Exception: {ex.InnerException.Message}";
                 }
-                MessageBox.Show(errorMsg, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                _logger.Error(errorMsg);
             }
-        }
-
-        private void CloseWindow()
-        {
-            if (Application.Current != null && Application.Current.Windows.Count > 1)
-            {
-                Application.Current.Windows[1]?.Close();
-            }
+            _dialogService.CloseCurrentWindow();
         }
     }
 }

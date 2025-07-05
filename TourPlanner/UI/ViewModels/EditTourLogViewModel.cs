@@ -3,7 +3,9 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using TourPlanner.BL.Services;
+using TourPlanner.UI.Services;
 using TourPlanner.Utilities;
+using TourPlanner.Utilities.Logging;
 
 namespace TourPlanner.UI.ViewModels
 {
@@ -11,6 +13,9 @@ namespace TourPlanner.UI.ViewModels
     {
         private readonly TourLogService logService;
         private readonly TourLog originalLog;
+        private readonly IDialogService _dialogService;
+        private static readonly ILoggerWrapper _logger = LoggerFactory.GetLogger();
+
         public TourLog EditedLog { get; }
 
         public ICommand ConfirmEditLogCommand { get; }
@@ -31,39 +36,37 @@ namespace TourPlanner.UI.ViewModels
                 TotalTime = selectedLog.TotalTime,
                 Rating = selectedLog.Rating
             };
+            _dialogService = new DialogService();
 
             ConfirmEditLogCommand = new RelayCommand(async _ => await UpdateLogAsync());
         }
 
         private async Task UpdateLogAsync()
         {
-            // Werte aus der bearbeiteten Kopie zurück in das Original übernehmen
-            originalLog.Date = EditedLog.Date;
-            originalLog.Comment = EditedLog.Comment;
-            originalLog.Difficulty = EditedLog.Difficulty;
-            originalLog.TotalDistance = EditedLog.TotalDistance;
-            originalLog.TotalTime = EditedLog.TotalTime;
-            originalLog.Rating = EditedLog.Rating;
-
+           
             try
             {
+               // Werte aus der bearbeiteten Kopie zurück in das Original übernehmen
+                originalLog.Date = EditedLog.Date;
+                originalLog.Comment = EditedLog.Comment;
+                originalLog.Difficulty = EditedLog.Difficulty;
+                originalLog.TotalDistance = EditedLog.TotalDistance;
+                originalLog.TotalTime = EditedLog.TotalTime;
+                originalLog.Rating = EditedLog.Rating;
+              
                 await logService.UpdateTourLogAsync(originalLog);
 
-                MessageBox.Show("Tour log updated successfully!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
-                CloseWindow();
+                _dialogService.ShowMessage($"Tour log (Date: [{originalLog.Date}]) updated successfully!", "Success");
+                _logger.Info($"Tour log (Date: [{originalLog.Date}]) updated successfully!");
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Failed to update tour log: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                _dialogService.ShowMessage($"Failed to update tour log: {ex.Message}", "Error");
+                _logger.Error($"Error while updating tour log: {ex}");
             }
+            _dialogService.CloseCurrentWindow();
+          
         }
 
-        private void CloseWindow()
-        {
-            if (Application.Current.Windows.Count > 1)
-            {
-                Application.Current.Windows[1]?.Close();
-            }
-        }
     }
 }

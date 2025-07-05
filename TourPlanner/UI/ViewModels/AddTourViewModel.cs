@@ -7,7 +7,9 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using TourPlanner.BL.Services;
+using TourPlanner.UI.Services;
 using TourPlanner.Utilities;
+using TourPlanner.Utilities.Logging;
 
 namespace TourPlanner.UI.ViewModels
 {
@@ -18,6 +20,10 @@ namespace TourPlanner.UI.ViewModels
         public string NewTourFrom { get; set; } = string.Empty;
         public string NewTourTo { get; set; } = string.Empty;
         public TransportType NewTourTransportType { get; set; } = TransportType.Walk;
+
+        public string ImagePath { get; set; } = "../../Images/TestRoute.png";
+        private readonly string imageFolder = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Images");
+        private readonly IDialogService _dialogService;
 
         private string? imagePath;
         public string? ImagePath
@@ -45,8 +51,10 @@ namespace TourPlanner.UI.ViewModels
 
         private readonly TourService tourService;
         private readonly ObservableCollection<Tour> tours;
+        private static readonly ILoggerWrapper _logger = LoggerFactory.GetLogger();
 
         public event PropertyChangedEventHandler? PropertyChanged;
+
         protected void OnPropertyChanged(string propertyName)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
@@ -82,7 +90,7 @@ namespace TourPlanner.UI.ViewModels
 
                 File.Copy(dialog.FileName, destPath);
 
-                // 🆕 Hier den absoluten und relativen Pfad setzen
+                
                 ImagePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Images", fileName); // Absoluter Pfad für WPF
                 RelativeImagePath = Path.Combine("Images", fileName); // Relativer Pfad für die DB
             }
@@ -95,6 +103,7 @@ namespace TourPlanner.UI.ViewModels
         {
             this.tourService = tourService;
             this.tours = tours;
+            _dialogService = new DialogService();
             ConfirmAddTourCommand = new RelayCommand(async _ => await AddTourAsync());
         }
 
@@ -110,45 +119,37 @@ namespace TourPlanner.UI.ViewModels
         {
             if (!CanAddTour())
             {
-                MessageBox.Show("Please fill out all fields!", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                _dialogService.ShowMessage("Please fill out all fields!", "Error");
+                _logger.Warn("AddTour failed: Missing required fields.");
                 return;
             }
-
-            var newTour = new Tour
-            {
-                Name = NewTourName?.Trim() ?? "Unnamed Tour",
-                Description = NewTourDesc?.Trim() ?? "No description",
-                From = NewTourFrom?.Trim() ?? "Unknown",
-                To = NewTourTo?.Trim() ?? "Unknown",
-                TransportType = NewTourTransportType,
-                Distance = 0,
-                EstimatedTime = 0,
-                Image = string.IsNullOrWhiteSpace(RelativeImagePath)
-                    ? "Images/TestRoute.png" // Default-Bild
-                    : RelativeImagePath,
-                Date = DateTime.UtcNow
-            };
-
             try
             {
+                var newTour = new Tour
+                {
+                    Name = NewTourName?.Trim() ?? "Unnamed Tour",
+                    Description = NewTourDesc?.Trim() ?? "No description",
+                    From = NewTourFrom?.Trim() ?? "Unknown",
+                    To = NewTourTo?.Trim() ?? "Unknown",
+                    TransportType = NewTourTransportType,
+                    Distance = 0,
+                    EstimatedTime = 0,
+                    Image = string.IsNullOrWhiteSpace(RelativeImagePath)
+                        ? "Images/TestRoute.png" // Default-Bild
+                        : RelativeImagePath,
+                    Date = DateTime.UtcNow
+                };
                 await tourService.AddTourAsync(newTour);
                 tours.Add(newTour);
-
-                MessageBox.Show("Tour added successfully!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
-                CloseWindow();
+                _logger.Info($"Tour added successfully: {newTour.Name}");
+                _dialogService.ShowMessage("Tour added successfully!", "Success");
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Failed to add tour: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                _dialogService.ShowMessage($"Failed to add tour: {ex.Message}", "Error");
+                 _logger.Error($"Error while adding tour: {ex}");
             }
-        }
-
-        protected virtual void CloseWindow()
-        {
-            if (Application.Current != null && Application.Current.Windows.Count > 1)
-            {
-                Application.Current.Windows[1]?.Close();
-            }
+            _dialogService.CloseCurrentWindow();
         }
     }
 }

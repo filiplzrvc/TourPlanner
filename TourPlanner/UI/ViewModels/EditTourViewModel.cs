@@ -4,13 +4,19 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using TourPlanner.BL.Services;
+using TourPlanner.UI.Services;
 using TourPlanner.Utilities;
+using TourPlanner.Utilities.Logging;
 
 namespace TourPlanner.UI.ViewModels
 {
     public class EditTourViewModel
     {
         private readonly TourService tourService;
+        private readonly IDialogService _dialogService;
+        private static readonly ILoggerWrapper _logger = LoggerFactory.GetLogger();
+
+
         public Tour SelectedTour { get; }
         public Tour EditedTour { get; }
 
@@ -43,7 +49,8 @@ namespace TourPlanner.UI.ViewModels
                 EstimatedTime = selectedTour.EstimatedTime,
                 Date = selectedTour.Date,
                 Image = selectedTour.Image
-            };
+            };  
+            _dialogService= new DialogService();
 
             ConfirmEditTourCommand = new RelayCommand(async _ => await UpdateTourAsync());
         }
@@ -60,40 +67,35 @@ namespace TourPlanner.UI.ViewModels
         {
             if (!CanUpdateTour())
             {
-                MessageBox.Show("Please fill out all fields!", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                _dialogService.ShowMessage("Please fill out all fields!", "Error");
                 return;
             }
 
-            // Änderungen von EditedTour ins Original übernehmen
-            SelectedTour.Name = EditedTour.Name;
-            SelectedTour.Description = EditedTour.Description;
-            SelectedTour.From = EditedTour.From;
-            SelectedTour.To = EditedTour.To;
-            SelectedTour.TransportType = EditedTour.TransportType;
-            SelectedTour.Distance = EditedTour.Distance;
-            SelectedTour.EstimatedTime = EditedTour.EstimatedTime;
-            SelectedTour.Date = EditedTour.Date;
-            SelectedTour.Image = EditedTour.Image;
-
             try
             {
+                // Änderungen von EditedTour ins Original übernehmen
+                SelectedTour.Name = EditedTour.Name;
+                SelectedTour.Description = EditedTour.Description;
+                SelectedTour.From = EditedTour.From;
+                SelectedTour.To = EditedTour.To;
+                SelectedTour.TransportType = EditedTour.TransportType;
+                SelectedTour.Distance = EditedTour.Distance;
+                SelectedTour.EstimatedTime = EditedTour.EstimatedTime;
+                SelectedTour.Date = EditedTour.Date;
+                SelectedTour.Image = EditedTour.Image;
+              
                 await tourService.UpdateTourAsync(SelectedTour);
 
-                MessageBox.Show("Tour updated successfully!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
-                CloseWindow();
+                _dialogService.ShowMessage("Tour updated successfully!", "Success");
+                _logger.Info($"Tour [{SelectedTour.Name}] updated successfully!");
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Failed to update tour: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                _dialogService.ShowMessage($"Failed to update tour: {ex.Message}", "Error");
+              _logger.Error($"Error while updating tour: {ex}");
             }
-        }
-
-        protected virtual void CloseWindow()
-        {
-            if (Application.Current.Windows.Count > 1)
-            {
-                Application.Current.Windows[1]?.Close();
-            }
+            _dialogService.CloseCurrentWindow();
+          
         }
     }
 }
