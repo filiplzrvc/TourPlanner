@@ -54,9 +54,8 @@ namespace TourPlanner.UI.ViewModels
                     TotalTime = LogTotalTime,
                     Rating = LogRating
                 };
-                parentTour.TourLogs.Add(newLog); // in die Tour einfügen
+                parentTour.TourLogs.Add(newLog);
 
-                // In der DB speichern
                 await logService.AddTourLogAsync(newLog);
                 _logger.Info($"Tour log added successfully: {LogComment} on {LogDate}");
                 _dialogService.ShowMessage("Tour log added successfully!", "Success");

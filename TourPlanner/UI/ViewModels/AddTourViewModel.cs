@@ -35,7 +35,7 @@ namespace TourPlanner.UI.ViewModels
             }
         }
 
-        public string? RelativeImagePath { get; set; } // für die DB
+        public string? RelativeImagePath { get; set; }
 
         private readonly string imagesFolder = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Images");
 
@@ -139,7 +139,6 @@ namespace TourPlanner.UI.ViewModels
                     Date = DateTime.UtcNow
                 };
                 await tourService.AddTourAsync(newTour);
-                //tours.Add(newTour);
                 await ReloadToursAsync();
                 _logger.Info($"Tour added successfully: {newTour.Name}");
                 _dialogService.ShowMessage("Tour added successfully!", "Success");

@@ -25,10 +25,9 @@ namespace TourPlanner.UI.ViewModels
             this.logService = logService ?? throw new ArgumentNullException(nameof(logService));
             originalLog = selectedLog ?? throw new ArgumentNullException(nameof(selectedLog));
 
-            // Kopie erstellen, damit Änderungen erst nach Bestätigung übernommen werden
             EditedLog = new TourLog
             {
-                Id = selectedLog.Id, // wichtig: Id mitgeben, damit EF weiß welches Entity
+                Id = selectedLog.Id,
                 Date = selectedLog.Date,
                 Comment = selectedLog.Comment,
                 Difficulty = selectedLog.Difficulty,
@@ -46,7 +45,6 @@ namespace TourPlanner.UI.ViewModels
            
             try
             {
-               // Werte aus der bearbeiteten Kopie zurück in das Original übernehmen
                 originalLog.Date = EditedLog.Date;
                 originalLog.Comment = EditedLog.Comment;
                 originalLog.Difficulty = EditedLog.Difficulty;

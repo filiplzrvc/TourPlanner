@@ -30,7 +30,6 @@ namespace TourPlanner.Utilities
             gfx.DrawString($"Distance: {tour.Distance} km", font, XBrushes.Black, new XPoint(40, y)); y += 20;
             gfx.DrawString($"Estimated Time: {tour.EstimatedTime} h", font, XBrushes.Black, new XPoint(40, y)); y += 30;
 
-            // 🖼 Bild einfügen (Map)
             if (File.Exists(tour.Image))
             {
                 try
@@ -51,12 +50,11 @@ namespace TourPlanner.Utilities
                 }
                 catch
                 {
-                    gfx.DrawString("⚠ Bild konnte nicht geladen werden.", font, XBrushes.Red, new XPoint(40, y));
+                    gfx.DrawString("Bild konnte nicht geladen werden.", font, XBrushes.Red, new XPoint(40, y));
                     y += 20;
                 }
             }
 
-            // 📄 Tour Logs
             gfx.DrawString("Tour Logs:", titleFont, XBrushes.Black, new XPoint(40, y));
             y += 30;
 

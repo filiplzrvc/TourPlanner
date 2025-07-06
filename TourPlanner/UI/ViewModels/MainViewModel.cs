@@ -15,6 +15,7 @@ using TourPlanner.UI.Services;
 using TourPlanner.Utilities.Logging;
 using log4net.Repository.Hierarchy;
 using Microsoft.Extensions.DependencyInjection;
+using TourPlanner.UI.Views.Components;
 
 namespace TourPlanner.UI.ViewModels
 {
@@ -26,12 +27,23 @@ namespace TourPlanner.UI.ViewModels
 
         private readonly TourService tourService;
         private readonly TourLogService tourLogService;
+        private readonly OpenRouteServiceClient _orsClient;
         private readonly IDialogService _dialogService;
+
+        public event Action<string, string>? RouteUpdateRequested;
+        public event Action? MapClearRequested;
 
         public ObservableCollection<Tour> Tours { get; } = new();
         public ObservableCollection<TourLog> TourLogs
         {
-            get => SelectedTour?.TourLogs ?? new ObservableCollection<TourLog>();
+            get
+            {
+                if (SelectedTour?.TourLogs != null)
+                {
+                    return new ObservableCollection<TourLog>(SelectedTour.TourLogs);
+                }
+                return new ObservableCollection<TourLog>();
+            }
         }
 
         public ObservableCollection<Tour> FilteredTours { get; } = new();
@@ -69,12 +81,13 @@ namespace TourPlanner.UI.ViewModels
             }
         }
 
-        public MainViewModel(TourService tourService, TourLogService tourLogService)
+        public MainViewModel(TourService tourService, TourLogService tourLogService, OpenRouteServiceClient orsClient)
         {
             this.tourService = tourService ?? throw new ArgumentNullException(nameof(tourService));
             this.tourLogService = tourLogService ?? throw new ArgumentNullException(nameof(tourLogService));
+            this._orsClient = orsClient ?? throw new ArgumentNullException(nameof(orsClient));
 
-            _dialogService= new DialogService();
+            _dialogService = new DialogService();
 
             _logger.Info("MainViewModel initialized.");
 
@@ -100,9 +113,24 @@ namespace TourPlanner.UI.ViewModels
                 {
                     selectedTour = value;
                     OnPropertyChanged(nameof(SelectedTour));
-                    OnPropertyChanged(nameof(TourLogs)); // aktualisiere die Logs
+                    OnPropertyChanged(nameof(TourLogs));
                     ApplyTourLogSearchFilter();
+                    ShowTourRouteOnMap();
                 }
+            }
+        }
+
+        private void ShowTourRouteOnMap()
+        {
+            if (selectedTour != null)
+            {
+                _logger.Info($"Requesting route update: {selectedTour.From} -> {selectedTour.To}");
+                RouteUpdateRequested?.Invoke(selectedTour.From, selectedTour.To);
+            }
+            else
+            {
+                _logger.Info("Requesting map clear");
+                MapClearRequested?.Invoke();
             }
         }
 
@@ -197,32 +225,12 @@ namespace TourPlanner.UI.ViewModels
             var tourService = App.AppHost.Services.GetRequiredService<TourService>();
             var addTourViewModel = new AddTourViewModel(tourService, Tours);
 
-            // 🆕 Übergib ViewModel im Konstruktor
             var addTourWindow = new AddTourWindow(addTourViewModel);
             addTourWindow.ShowDialog();
 
             ApplySearchFilter();
             _logger.Info("Closed Add Tour Window and refreshed tours.");
         });
-
-
-        //public ICommand OpenAddTourWindowCommand => new RelayCommand(_ =>
-        //{
-        //    _logger.Info("Opening Add Tour Window.");
-
-        //    var tourService = App.AppHost.Services.GetRequiredService<TourService>();
-        //    var addTourViewModel = new AddTourViewModel(tourService, Tours);
-        //    var addTourWindow = new AddTourWindow
-        //    {
-        //        DataContext = addTourViewModel
-        //    };
-
-        //    // 🆕 Zeige das Fenster an
-        //    addTourWindow.ShowDialog();
-
-        //    ApplySearchFilter();
-        //    _logger.Info("Closed Add Tour Window and refreshed tours.");
-        //});
 
         public ICommand OpenEditTourWindowCommand => new RelayCommand(_ =>
         {
@@ -243,8 +251,6 @@ namespace TourPlanner.UI.ViewModels
             _logger.Info("Closed Edit Tour Window and refreshed tours.");
         }, _ => SelectedTour != null);
         
-        
-
 
         public ICommand DeleteTourCommand => new RelayCommand(async _ =>
         {
@@ -272,7 +278,8 @@ namespace TourPlanner.UI.ViewModels
             }
 
             var tourLogService = App.AppHost.Services.GetRequiredService<TourLogService>();
-            var addTourLogViewModel = new AddTourLogViewModel(tourLogService, SelectedTour.TourLogs, SelectedTour);
+            var addTourLogViewModel = new AddTourLogViewModel(
+            tourLogService, new ObservableCollection<TourLog>(SelectedTour.TourLogs), SelectedTour);
 
             var addTourLogWindow = new AddTourLogWindow
             {

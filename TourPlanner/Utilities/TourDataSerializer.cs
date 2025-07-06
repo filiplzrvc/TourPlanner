@@ -17,12 +17,11 @@ namespace TourPlanner.Utilities
                 Converters = { new JsonStringEnumConverter() }
             };
 
-            // 🛡️ Entferne die Tour-Referenz in den Logs, um Zyklus zu vermeiden
             foreach (var tour in tours)
             {
                 foreach (var log in tour.TourLogs)
                 {
-                    log.Tour = null; // wichtig!
+                    log.Tour = null;
                 }
             }
 
@@ -53,7 +52,6 @@ namespace TourPlanner.Utilities
                 string json = File.ReadAllText(filePath);
                 var importedTours = JsonSerializer.Deserialize<List<Tour>>(json, options) ?? new List<Tour>();
 
-                // 🛡️ IDs und Navigation zurücksetzen für EF Core
                 foreach (var tour in importedTours)
                 {
                     tour.Id = 0;
@@ -62,7 +60,7 @@ namespace TourPlanner.Utilities
                     {
                         log.Id = 0;
                         log.TourId = 0;
-                        log.Tour = tour; // Navigation wiederherstellen
+                        log.Tour = tour;
                     }
                 }
 
