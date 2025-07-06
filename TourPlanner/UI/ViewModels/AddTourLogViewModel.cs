@@ -32,6 +32,7 @@ namespace TourPlanner.UI.ViewModels
             this.logService = logService;
             this.logs = logs;
             this.parentTour = parentTour;
+            _dialogService = new DialogService();
             ConfirmAddLogCommand = new RelayCommand(async _ => await AddLogAsync(), _ => true);
         }
 
@@ -59,7 +60,7 @@ namespace TourPlanner.UI.ViewModels
                 await logService.AddTourLogAsync(newLog);
                 _logger.Info($"Tour log added successfully: {LogComment} on {LogDate}");
                 _dialogService.ShowMessage("Tour log added successfully!", "Success");
-                return;
+                _dialogService.CloseCurrentWindow();
             }
             catch (Exception ex)
             {

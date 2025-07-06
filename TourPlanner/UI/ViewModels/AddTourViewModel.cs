@@ -139,7 +139,8 @@ namespace TourPlanner.UI.ViewModels
                     Date = DateTime.UtcNow
                 };
                 await tourService.AddTourAsync(newTour);
-                tours.Add(newTour);
+                //tours.Add(newTour);
+                await ReloadToursAsync();
                 _logger.Info($"Tour added successfully: {newTour.Name}");
                 _dialogService.ShowMessage("Tour added successfully!", "Success");
             }
@@ -149,6 +150,16 @@ namespace TourPlanner.UI.ViewModels
                  _logger.Error($"Error while adding tour: {ex}");
             }
             _dialogService.CloseCurrentWindow();
+        }
+
+        private async Task ReloadToursAsync()
+        {
+            tours.Clear();
+            var allTours = await tourService.GetToursAsync();
+            foreach (var tour in allTours)
+            {
+                tours.Add(tour);
+            }
         }
     }
 }

@@ -28,7 +28,7 @@
 
             <!-- Tour-Details -->
             <StackPanel Grid.Row="2" DataContext="{Binding SelectedTour}" Margin="0,0,0,10">
-                <Grid Grid.Row="2" DataContext="{Binding SelectedTour}" Margin="0,0,0,10">
+                <Grid Grid.Row="2" Margin="0,0,0,10">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="*" />

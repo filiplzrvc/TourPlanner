@@ -193,17 +193,37 @@ namespace TourPlanner.UI.ViewModels
         public ICommand OpenAddTourWindowCommand => new RelayCommand(_ =>
         {
             _logger.Info("Opening Add Tour Window.");
-            
+
             var tourService = App.AppHost.Services.GetRequiredService<TourService>();
             var addTourViewModel = new AddTourViewModel(tourService, Tours);
-            var addTourWindow = new AddTourWindow(addTourViewModel); 
-            
+
+            // 🆕 Übergib ViewModel im Konstruktor
+            var addTourWindow = new AddTourWindow(addTourViewModel);
+            addTourWindow.ShowDialog();
+
             ApplySearchFilter();
             _logger.Info("Closed Add Tour Window and refreshed tours.");
         });
 
 
- 
+        //public ICommand OpenAddTourWindowCommand => new RelayCommand(_ =>
+        //{
+        //    _logger.Info("Opening Add Tour Window.");
+
+        //    var tourService = App.AppHost.Services.GetRequiredService<TourService>();
+        //    var addTourViewModel = new AddTourViewModel(tourService, Tours);
+        //    var addTourWindow = new AddTourWindow
+        //    {
+        //        DataContext = addTourViewModel
+        //    };
+
+        //    // 🆕 Zeige das Fenster an
+        //    addTourWindow.ShowDialog();
+
+        //    ApplySearchFilter();
+        //    _logger.Info("Closed Add Tour Window and refreshed tours.");
+        //});
+
         public ICommand OpenEditTourWindowCommand => new RelayCommand(_ =>
         {
             _logger.Info("Opening Edit Tour Window.");
@@ -387,37 +407,39 @@ namespace TourPlanner.UI.ViewModels
                 }
             }
         });
- 
 
-    public ICommand ExportToursCommand => new RelayCommand(_ =>
-    {
-      try
-      {
-        var saveFileDialog = new Microsoft.Win32.SaveFileDialog
-        {
-            Filter = "JSON Files (*.json)|*.json",
-            Title = "Export Tours",
-            FileName = "ToursExport.json"
-        };
-        if (SelectedTourLog == null)
-        {
-            _dialogService.ShowMessage("Please select a tour log first!", "Error");
-            return;
-        }
 
-        if (saveFileDialog.ShowDialog() == true)
+        public ICommand ExportToursCommand => new RelayCommand(_ =>
         {
-             _logger.Info($"Exporting tours to {saveFileDialog.FileName}");
-            TourDataSerializer.ExportTours(Tours, saveFileDialog.FileName);
-            _dialogService.ShowMessage("Tour data exported successfully.", "Export");
-            _logger.Info("Tours exported successfully.");
-        }
-       }catch(Exception ex)
-        {
-            _dialogService.ShowMessage($"Tour data failed to export {ex}", "Error");
-            _logger.Error($"Tour data failed to export {ex}");
-        }
-    }, _ => Tours.Count > 0);
+            try
+            {
+                if (Tours.Count == 0)
+                {
+                    _dialogService.ShowMessage("There are no tours to export.", "Error");
+                    return;
+                }
+
+                var saveFileDialog = new Microsoft.Win32.SaveFileDialog
+                {
+                    Filter = "JSON Files (*.json)|*.json",
+                    Title = "Export Tours",
+                    FileName = "ToursExport.json"
+                };
+
+                if (saveFileDialog.ShowDialog() == true)
+                {
+                    _logger.Info($"Exporting tours to {saveFileDialog.FileName}");
+                    TourDataSerializer.ExportTours(Tours, saveFileDialog.FileName);
+                    _dialogService.ShowMessage("Tour data exported successfully.", "Export");
+                    _logger.Info("Tours exported successfully.");
+                }
+            }
+            catch (Exception ex)
+            {
+                _dialogService.ShowMessage($"Tour data failed to export: {ex.Message}", "Error");
+                _logger.Error($"Tour data failed to export: {ex}");
+            }
+        }, _ => Tours.Count > 0);
 
 
         public Brush DeleteTextColor
