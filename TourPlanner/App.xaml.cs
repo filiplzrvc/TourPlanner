@@ -29,19 +29,28 @@ namespace TourPlanner
                     var configuration = context.Configuration;
                     var connectionString = configuration.GetConnectionString("DefaultConnection");
 
-                    // DbContext als Singleton (lebt für die App-Laufzeit)
                     services.AddDbContext<TourPlannerContext>(options =>
                         options.UseNpgsql(connectionString),
                         ServiceLifetime.Singleton);
 
-                    // Repository und Services ebenfalls Singleton
                     services.AddSingleton(typeof(IRepository<>), typeof(Repository<>));
                     services.AddSingleton<TourService>();
                     services.AddSingleton<TourLogService>();
 
-                    // ViewModels & Views als Singleton
                     services.AddSingleton<MainViewModel>();
                     services.AddSingleton<MainWindow>();
+
+
+                    services.AddSingleton<OpenRouteServiceClient>(provider =>
+                    {
+                        var config = provider.GetRequiredService<IConfiguration>();
+                        var apiKey = config["OpenRouteService:ApiKey"];
+
+                        if (string.IsNullOrWhiteSpace(apiKey))
+                            throw new InvalidOperationException("OpenRouteService API key is missing in appsettings.json.");
+
+                        return new OpenRouteServiceClient(apiKey);
+                    });
                 })
                 .Build();
         }

@@ -5,7 +5,7 @@ namespace TourPlanner
 {
     public class TourLog : INotifyPropertyChanged
     {
-        public int Id { get; set; }  // Primärschlüssel
+        public int Id { get; set; }
 
         private DateTime date = DateTime.UtcNow;
         private string comment = string.Empty;
@@ -14,7 +14,6 @@ namespace TourPlanner
         private double totalTime;
         private int rating;
 
-        // 🆕 FK + Navigation
         public int TourId { get; set; }
         public Tour Tour { get; set; }
 

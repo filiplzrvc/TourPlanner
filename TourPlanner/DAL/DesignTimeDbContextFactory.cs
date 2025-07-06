@@ -9,7 +9,6 @@ namespace TourPlanner.DAL
     {
         public TourPlannerContext CreateDbContext(string[] args)
         {
-            // Lade die Konfiguration
             IConfigurationRoot configuration = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json")

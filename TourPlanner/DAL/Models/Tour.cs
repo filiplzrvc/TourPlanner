@@ -12,17 +12,16 @@ using System.Windows.Media.Imaging;
 
 namespace TourPlanner
 {
-    // Transport enum
     public enum TransportType
     {
         Bus, Train, Plane, Walk, Bicycle
     }
+
     public class Tour : INotifyPropertyChanged
     {
-        public int Id { get; set; }  // Primärschlüssel
-        public ObservableCollection<TourLog> TourLogs { get; set; } = new ObservableCollection<TourLog>();
+        public int Id { get; set; }
+        public ICollection<TourLog> TourLogs { get; set; } = new List<TourLog>();
 
-        
         private string name = "Unnamed Tour";
         private string description = "No description available";
         private string from = "Unknown";
@@ -31,7 +30,7 @@ namespace TourPlanner
         private double distance;
         private double estimatedTime;
         private DateTime date = DateTime.UtcNow;
-        private string image = "../../Images/TestRoute.png";
+        private string image = "Images/TestRoute.png";
 
         public string Name { get => name; set => SetProperty(ref name, value); }
         public string Description { get => description; set => SetProperty(ref description, value); }
@@ -41,8 +40,18 @@ namespace TourPlanner
         public double Distance { get => distance; set => SetProperty(ref distance, value); }
         public double EstimatedTime { get => estimatedTime; set => SetProperty(ref estimatedTime, value); }
         public DateTime Date { get => date; set => SetProperty(ref date, value); }
-        public string? Image { get => image; set => SetProperty(ref image, value); }
 
+        public string? Image
+        {
+            get => image;
+            set
+            {
+                if (SetProperty(ref image, value))
+                {
+                    OnPropertyChanged(nameof(TourImage));
+                }
+            }
+        }
 
         [JsonIgnore]
         public BitmapImage TourImage
@@ -54,17 +63,36 @@ namespace TourPlanner
                     if (!string.IsNullOrEmpty(Image))
                     {
                         string absolutePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, Image);
-
                         if (File.Exists(absolutePath))
                         {
-                            return new BitmapImage(new Uri(absolutePath, UriKind.Absolute));
+                            var bitmap = new BitmapImage();
+                            bitmap.BeginInit();
+                            bitmap.UriSource = new Uri(absolutePath, UriKind.Absolute);
+                            bitmap.CacheOption = BitmapCacheOption.OnLoad;
+                            bitmap.EndInit();
+                            bitmap.Freeze();
+                            return bitmap;
                         }
                     }
                 }
-                catch { }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Error loading image: {ex.Message}");
+                }
 
-                // 🛡️ Fallback-Bild
-                return new BitmapImage(new Uri("pack://application:,,,/Images/TestRoute.png"));
+                try
+                {
+                    var fallbackBitmap = new BitmapImage();
+                    fallbackBitmap.BeginInit();
+                    fallbackBitmap.UriSource = new Uri("pack://application:,,,/Images/TestRoute.png");
+                    fallbackBitmap.EndInit();
+                    fallbackBitmap.Freeze();
+                    return fallbackBitmap;
+                }
+                catch
+                {
+                    return null;
+                }
             }
         }
 

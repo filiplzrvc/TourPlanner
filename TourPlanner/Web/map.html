@@ -1,0 +1,101 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Leaflet Map</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
+    <style>
+        html, body, #map {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script>
+        var map = L.map('map').setView([47.0707, 15.4395], 7); // Österreich als Standard
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        var routeLine = null;
+        var startMarker = null;
+        var endMarker = null;
+
+        function loadMap(geoJsonString, fromLat, fromLon, toLat, toLon) {
+            try {
+                if (isNaN(fromLat) || isNaN(fromLon) || isNaN(toLat) || isNaN(toLon)) {
+                    throw new Error('Invalid coordinates');
+                }
+
+                clearAll();
+
+                var geoJson = JSON.parse(geoJsonString);
+
+                routeLine = L.geoJSON(geoJson, {
+                    style: {
+                        color: 'blue',
+                        weight: 5,
+                        opacity: 0.8
+                    }
+                }).addTo(map);
+
+                addMarkers(fromLat, fromLon, toLat, toLon);
+
+                map.fitBounds(routeLine.getBounds(), { padding: [20, 20] });
+
+                return 'success';
+            } catch (error) {
+                return showMarkersOnly(fromLat, fromLon, toLat, toLon);
+            }
+        }
+
+        function showMarkersOnly(fromLat, fromLon, toLat, toLon) {
+            try {
+                if (isNaN(fromLat) || isNaN(fromLon) || isNaN(toLat) || isNaN(toLon)) {
+                    throw new Error('Invalid coordinates');
+                }
+
+                clearAll();
+                addMarkers(fromLat, fromLon, toLat, toLon);
+
+                var group = new L.featureGroup([startMarker, endMarker]);
+                map.fitBounds(group.getBounds(), { padding: [20, 20] });
+
+                return 'success';
+            } catch (error) {
+                return 'error: ' + error.message;
+            }
+        }
+
+        function addMarkers(fromLat, fromLon, toLat, toLon) {
+            startMarker = L.marker([fromLat, fromLon])
+                .addTo(map)
+                .bindPopup('Start: ' + fromLat.toFixed(4) + ', ' + fromLon.toFixed(4));
+
+            endMarker = L.marker([toLat, toLon])
+                .addTo(map)
+                .bindPopup('Ziel: ' + toLat.toFixed(4) + ', ' + toLon.toFixed(4));
+        }
+
+        function clearAll() {
+            if (routeLine) {
+                map.removeLayer(routeLine);
+                routeLine = null;
+            }
+            if (startMarker) {
+                map.removeLayer(startMarker);
+                startMarker = null;
+            }
+            if (endMarker) {
+                map.removeLayer(endMarker);
+                endMarker = null;
+            }
+        }
+    </script>
+</body>
+</html>

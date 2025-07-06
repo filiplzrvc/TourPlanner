@@ -26,7 +26,7 @@ namespace TourPlanner.DAL
 
             modelBuilder.Entity<Tour>()
                 .Property(t => t.Image)
-                .IsRequired(false); // 🆕 Image optional
+                .IsRequired(false);
         }
     }
 }
