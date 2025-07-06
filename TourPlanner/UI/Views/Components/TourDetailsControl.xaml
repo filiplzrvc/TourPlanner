@@ -28,7 +28,24 @@
 
             <!-- Tour-Details -->
             <StackPanel Grid.Row="2" DataContext="{Binding SelectedTour}" Margin="0,0,0,10">
-                <Image Source="{Binding TourImage}" Height="180" Margin="0,0,0,10" Stretch="UniformToFill"/>
+                <Grid Grid.Row="2" DataContext="{Binding SelectedTour}" Margin="0,0,0,10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Tour Image -->
+                    <Image Source="{Binding TourImage}" Height="180" Margin="0,0,0,10" Stretch="UniformToFill"/>
+
+                    <!-- Leaflet Placeholder -->
+                    <Border Grid.Column="1" Background="#E0E0E0" Margin="10,0,0,0" CornerRadius="6" BorderBrush="#CCCCCC" BorderThickness="1">
+                        <TextBlock Text="Leaflet Map Placeholder"
+                       VerticalAlignment="Center"
+                       HorizontalAlignment="Center"
+                       Foreground="Gray"
+                       FontStyle="Italic"/>
+                        </Border>
+                </Grid>
 
                 <Grid Margin="0,0,0,10">
                     <Grid.RowDefinitions>
