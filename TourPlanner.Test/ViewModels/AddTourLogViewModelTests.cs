@@ -14,13 +14,15 @@ namespace TourPlanner.Test.ViewModels
     {
         private TourLogService _logService;
         private ObservableCollection<TourLog> _logs;
+        private Tour _parentTour;
 
         [SetUp]
         public void Setup()
         {
             _logService = new TourLogService();
             _logs = new ObservableCollection<TourLog>();
-            DialogService.SuppressDialogs = true; 
+            _parentTour = new Tour { Name = "Test Tour", TourLogs = _logs };
+            DialogService.SuppressDialogs = true;
         }
 
         [TearDown]
@@ -33,7 +35,7 @@ namespace TourPlanner.Test.ViewModels
         public void AddLog_ValidLog_LogIsAdded()
         {
             // Arrange
-            var vm = new AddTourLogViewModel(_logService, _logs)
+            var vm = new AddTourLogViewModel(_logService, _logs, _parentTour)
             {
                 LogComment = "Test Comment",
                 LogDifficulty = 2,
@@ -56,7 +58,7 @@ namespace TourPlanner.Test.ViewModels
         public void AddLog_NullLogs_ShowsErrorMessageAndDoesNotThrow()
         {
             // Arrange
-            var vm = new AddTourLogViewModel(_logService, null);
+            var vm = new AddTourLogViewModel(_logService, null, _parentTour);
 
             // Act + Assert
             Assert.DoesNotThrow(() => vm.ConfirmAddLogCommand.Execute(null));
@@ -66,7 +68,7 @@ namespace TourPlanner.Test.ViewModels
         public void AddLog_AddedLogHasCorrectData()
         {
             // Arrange
-            var vm = new AddTourLogViewModel(_logService, _logs)
+            var vm = new AddTourLogViewModel(_logService, _logs, _parentTour)
             {
                 LogDate = new DateTime(2024, 1, 1),
                 LogComment = "Verify Data",

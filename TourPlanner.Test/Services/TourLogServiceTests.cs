@@ -1,34 +1,50 @@
-﻿using System;
+﻿using Moq;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TourPlanner.BL.Services;
+using TourPlanner.DAL;
+using TourPlanner.UI.Services;
 
 namespace TourPlanner.Test.Services
 {
     public class TourLogServiceTests
     {
+        private Mock<IRepository<TourLog>> _repositoryMock;
         private TourLogService _tourLogService;
 
         [SetUp]
         public void Setup()
         {
-            _tourLogService = new TourLogService();
+            _repositoryMock = new Mock<IRepository<TourLog>>();
+            _tourLogService = new TourLogService(_repositoryMock.Object);
+            DialogService.SuppressDialogs = true;
         }
 
-        [Test]
-        public void GetTourLogs_Initially_ReturnsEmptyList()
+        [TearDown]
+        public void TearDown()
         {
+            DialogService.SuppressDialogs = false;
+        }
+        [Test]
+        public async Task GetTourLogsAsync_Initially_ReturnsEmptyList()
+        {
+            // Arrange
+            _repositoryMock
+                .Setup(r => r.GetAllAsync())
+                .ReturnsAsync(new List<TourLog>());
+
             // Act
-            var result = _tourLogService.GetTourLogs();
+            var result = await _tourLogService.GetTourLogsAsync();
 
             // Assert
-            Assert.That(result.Count(), Is.EqualTo(0));
+            Assert.That(result, Is.Empty);
         }
 
         [Test]
-        public void AddTourLog_ValidLog_LogIsAdded()
+        public async Task AddTourLogAsync_ValidLog_LogIsAdded()
         {
             // Arrange
             var log = new TourLog
@@ -41,16 +57,24 @@ namespace TourPlanner.Test.Services
                 Rating = 4
             };
 
+            _repositoryMock
+                .Setup(r => r.AddAsync(log))
+                .Returns(Task.CompletedTask);
+
+            _repositoryMock
+                .Setup(r => r.SaveAsync())
+                .Returns(Task.CompletedTask);
+
             // Act
-            _tourLogService.AddTourLog(log);
+            await _tourLogService.AddTourLogAsync(log);
 
             // Assert
-            Assert.That(_tourLogService.GetTourLogs().Count(), Is.EqualTo(1));
-            Assert.That(_tourLogService.GetTourLogs().First().Comment, Is.EqualTo("Test Log"));
+            _repositoryMock.Verify(r => r.AddAsync(log), Times.Once);
+            _repositoryMock.Verify(r => r.SaveAsync(), Times.Once);
         }
 
         [Test]
-        public void UpdateTourLog_ExistingLog_UpdatesSuccessfully()
+        public async Task UpdateTourLogAsync_ExistingLog_UpdatesSuccessfully()
         {
             // Arrange
             var log = new TourLog
@@ -62,56 +86,64 @@ namespace TourPlanner.Test.Services
                 TotalTime = 0.75,
                 Rating = 3
             };
-            _tourLogService.AddTourLog(log);
 
-            var updatedLog = new TourLog
-            {
-                Date = DateTime.Today,
-                Comment = "Updated Comment",
-                Difficulty = 3,
-                TotalDistance = 8,
-                TotalTime = 1.5,
-                Rating = 5
-            };
+            _repositoryMock
+                .Setup(r => r.Update(log));
+
+            _repositoryMock
+                .Setup(r => r.SaveAsync())
+                .Returns(Task.CompletedTask);
 
             // Act
-            _tourLogService.UpdateTourLog(updatedLog);
+            await _tourLogService.UpdateTourLogAsync(log);
 
             // Assert
-            var firstLog = _tourLogService.GetTourLogs().First();
-            Assert.That(firstLog.Comment, Is.EqualTo("Updated Comment"));
-            Assert.That(firstLog.Difficulty, Is.EqualTo(3));
-            Assert.That(firstLog.TotalDistance, Is.EqualTo(8));
-            Assert.That(firstLog.TotalTime, Is.EqualTo(1.5));
-            Assert.That(firstLog.Rating, Is.EqualTo(5));
+            _repositoryMock.Verify(r => r.Update(log), Times.Once);
+            _repositoryMock.Verify(r => r.SaveAsync(), Times.Once);
         }
 
         [Test]
-        public void DeleteTourLog_ExistingLog_RemovesLog()
-        {
-            // Arrange
-            var log = new TourLog { Date = DateTime.Now };
-            _tourLogService.AddTourLog(log);
-
-            // Act
-            _tourLogService.DeleteTourLog(log);
-
-            // Assert
-            Assert.That(_tourLogService.GetTourLogs().Count(), Is.EqualTo(0));
-        }
-
-        [Test]
-        public void DeleteTourLog_NonExistingLog_DoesNothing()
+        public async Task DeleteTourLogAsync_ExistingLog_RemovesLog()
         {
             // Arrange
             var log = new TourLog { Date = DateTime.Now };
 
+            _repositoryMock
+                .Setup(r => r.Delete(log));
+
+            _repositoryMock
+                .Setup(r => r.SaveAsync())
+                .Returns(Task.CompletedTask);
+
             // Act
-            _tourLogService.DeleteTourLog(log);
+            await _tourLogService.DeleteTourLogAsync(log);
 
             // Assert
-            Assert.That(_tourLogService.GetTourLogs().Count(), Is.EqualTo(0));
+            _repositoryMock.Verify(r => r.Delete(log), Times.Once);
+            _repositoryMock.Verify(r => r.SaveAsync(), Times.Once);
         }
+
+        [Test]
+        public async Task DeleteTourLogAsync_NonExistingLog_DoesNothing()
+        {
+            // Arrange
+            var log = new TourLog { Date = DateTime.Now };
+
+            _repositoryMock
+                .Setup(r => r.Delete(log));
+
+            _repositoryMock
+                .Setup(r => r.SaveAsync())
+                .Returns(Task.CompletedTask);
+
+            // Act
+            await _tourLogService.DeleteTourLogAsync(log);
+
+            // Assert
+            _repositoryMock.Verify(r => r.Delete(log), Times.Once);
+            _repositoryMock.Verify(r => r.SaveAsync(), Times.Once);
+        }
+
     }
 
 }

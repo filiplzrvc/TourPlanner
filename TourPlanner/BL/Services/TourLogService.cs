@@ -7,10 +7,16 @@ namespace TourPlanner.BL.Services
     public class TourLogService
     {
         private readonly IRepository<TourLog> repository;
+        private readonly List<TourLog> _logs;
 
         public TourLogService(IRepository<TourLog> repository)
         {
             this.repository = repository;
+        }
+
+        public TourLogService()
+        {
+            _logs = new List<TourLog>();
         }
 
         public async Task<IEnumerable<TourLog>> GetTourLogsAsync()

@@ -8,11 +8,17 @@ namespace TourPlanner.BL.Services
     {
         private readonly IRepository<Tour> repository;
         private readonly OpenRouteServiceClient orsClient;
+        private readonly List<Tour> _tours;
 
         public TourService(IRepository<Tour> repository, OpenRouteServiceClient orsClient)
         {
             this.repository = repository;
             this.orsClient = orsClient;
+        }
+
+        public TourService()
+        {
+            _tours = new List<Tour>();
         }
 
         public async Task<IEnumerable<Tour>> GetToursAsync()
