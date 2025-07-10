@@ -14,7 +14,7 @@ namespace TourPlanner.Test.Services
     public class TourServiceTest
     {
         private Mock<IRepository<Tour>> _repositoryMock;
-        private Mock<OpenRouteServiceClient> _orsClientMock;
+        private Mock<IOpenRouteServiceClient> _orsClientMock;
         private TourService _tourService;
 
 
@@ -22,7 +22,7 @@ namespace TourPlanner.Test.Services
         public void Setup()
         {
             _repositoryMock = new Mock<IRepository<Tour>>();
-            _orsClientMock = new Mock<OpenRouteServiceClient>();
+            _orsClientMock = new Mock<IOpenRouteServiceClient>();
             _tourService = new TourService(_repositoryMock.Object, _orsClientMock.Object);
             DialogService.SuppressDialogs = true;
         }
@@ -56,11 +56,12 @@ namespace TourPlanner.Test.Services
             _orsClientMock
                 .Setup(c => c.GetRouteWithCoordinatesAsync(tour.From, tour.To))
                 .ReturnsAsync((
-                    100.0,                  // Distance
-                    2.0,                    // Duration (as double!)
-                    "{}",                   // GeoJson
-                    (48.210033, 16.363449), // FromCoords
-                    (47.070714, 15.439504)  // ToCoords
+                    100.0,                  
+                    2.0,                    
+                    "{}",                   
+                    (48.210033, 16.363449), 
+                    (47.070714, 15.439504)  
+
                 ));
 
             _repositoryMock

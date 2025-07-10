@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace TourPlanner.BL.Services
 {
-    public class OpenRouteServiceClient
+    public class OpenRouteServiceClient:IOpenRouteServiceClient
     {
         private readonly string apiKey;
         private readonly HttpClient httpClient;
@@ -90,5 +90,6 @@ namespace TourPlanner.BL.Services
             var coords = features[0].GetProperty("geometry").GetProperty("coordinates");
             return (Latitude: coords[1].GetDouble(), Longitude: coords[0].GetDouble());
         }
+
     }
 }

@@ -70,7 +70,7 @@ namespace TourPlanner.Test.ViewModels
             // Arrange
             var vm = new AddTourLogViewModel(_logService, _logs, _parentTour)
             {
-                LogDate = new DateTime(2024, 1, 1),
+                LogDate = new DateTime(2024, 1, 1), 
                 LogComment = "Verify Data",
                 LogDifficulty = 3,
                 LogTotalDistance = 12.5,
@@ -83,8 +83,10 @@ namespace TourPlanner.Test.ViewModels
 
             // Assert
             var addedLog = _logs.FirstOrDefault();
-            Assert.That(addedLog, Is.Not.Null);
-            Assert.That(addedLog.Date, Is.EqualTo(new DateTime(2024, 1, 1)));
+            Assert.That(addedLog, Is.Not.Null, "Log wurde nicht zur Collection hinzugefügt.");
+
+            Assert.That(addedLog.Date.Date, Is.EqualTo(new DateTime(2024, 1, 1)), "Das Datum stimmt nicht.");
+
             Assert.That(addedLog.Comment, Is.EqualTo("Verify Data"));
             Assert.That(addedLog.Difficulty, Is.EqualTo(3));
             Assert.That(addedLog.TotalDistance, Is.EqualTo(12.5));

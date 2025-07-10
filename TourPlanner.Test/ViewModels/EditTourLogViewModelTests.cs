@@ -14,6 +14,7 @@ namespace TourPlanner.Test.ViewModels
         private TourLogService _logService;
         private TourLog _originalLog;
 
+
         [SetUp]
         public void Setup()
         {
